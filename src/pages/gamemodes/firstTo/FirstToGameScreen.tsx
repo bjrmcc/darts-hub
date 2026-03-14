@@ -4,7 +4,7 @@ import GameLayout from '../../../components/shared/GameLayout';
 import type { DartHit } from '../../../components/dartboard/GameBoard';
 import type { Profile } from '../../../types';
 
-export default function ATCGameScreen() {
+export default function FirstToGameScreen() {
   const { state } = useLocation();
 
   const players: Profile[] = state?.players ?? [];

@@ -5,9 +5,9 @@ import type { Profile } from '../types';
 interface ProfilesState {
   profiles: Profile[];
   activeProfileId: string | null;
-  addProfile: (name: string) => void;
+  addProfile: (name: string, id?: string) => void;
   removeProfile: (id: string) => void;
-  setActiveProfile: (id: string) => void;
+  setActiveProfile: (id: string | null) => void;
 }
 
 export const useProfilesStore = create<ProfilesState>()(
@@ -15,11 +15,11 @@ export const useProfilesStore = create<ProfilesState>()(
     (set) => ({
       profiles: [],
       activeProfileId: null,
-      addProfile: (name) =>
+      addProfile: (name, id) =>
         set((state) => ({
           profiles: [
             ...state.profiles,
-            { id: crypto.randomUUID(), name, createdAt: Date.now() },
+            { id: id ?? crypto.randomUUID(), name, createdAt: Date.now() },
           ],
         })),
       removeProfile: (id) =>

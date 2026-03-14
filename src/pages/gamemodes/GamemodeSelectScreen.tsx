@@ -7,10 +7,11 @@ export default function GamemodeSelectScreen() {
   return (
     <div className="page">
       <h2>Choose a Gamemode</h2>
-      <button onClick={() => navigate(ROUTES.X01_SETUP)}>501 / 301</button>
+      <button onClick={() => navigate(ROUTES.X01_SETUP)}>X01</button>
       <button onClick={() => navigate(ROUTES.CRICKET_SETUP)}>Cricket</button>
       <button onClick={() => navigate(ROUTES.ATC_SETUP)}>Around the Clock</button>
-      <button onClick={() => navigate(ROUTES.PRACTICE)}>Practice</button>
+      <button onClick={() => navigate(ROUTES.FIRST_TO_SETUP)}>First To</button>
+      <button onClick={() => navigate(ROUTES.PRACTICE)}>Free Throw</button>
       <button onClick={() => navigate(ROUTES.HOME)}>Back</button>
     </div>
   );

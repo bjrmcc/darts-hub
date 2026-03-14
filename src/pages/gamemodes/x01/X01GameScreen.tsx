@@ -1,14 +1,33 @@
-import { useNavigate } from 'react-router-dom';
-import { ROUTES } from '../../../constants';
+import { useLocation } from 'react-router-dom';
+import { useProfilesStore } from '../../../store/profilesStore';
+import { useGameTurn } from '../../../hooks/useGameTurn';
+import GameLayout from '../../../components/shared/GameLayout';
+import type { DartHit } from '../../../components/dartboard/GameBoard';
+import type { Profile } from '../../../types';
 
 export default function X01GameScreen() {
-  const navigate = useNavigate();
+  const { state } = useLocation();
+  const { profiles } = useProfilesStore();
+
+  const players: Profile[] = state?.players ?? [];
+  const playerNames = players.map((p) => p.name);
+
+  const { currentPlayer, nextPlayer, dartIndex, lastTurn, throwDart, throwMiss } =
+    useGameTurn(playerNames);
+
+  function handleHit(hit: DartHit) {
+    // Scoring logic to be implemented
+    throwDart(hit);
+  }
 
   return (
-    <div className="page">
-      <h2>501 / 301 — Game</h2>
-      <p>Coming soon</p>
-      <button onClick={() => navigate(ROUTES.X01_RESULT)}>End Game</button>
-    </div>
+    <GameLayout
+      currentPlayer={currentPlayer}
+      dartIndex={dartIndex}
+      nextPlayer={nextPlayer}
+      lastTurn={lastTurn}
+      onHit={handleHit}
+      onMiss={throwMiss}
+    />
   );
 }

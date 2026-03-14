@@ -1,14 +1,213 @@
-import { useNavigate } from 'react-router-dom';
+import { useState } from 'react';
+import { useLocation, useNavigate } from 'react-router-dom';
+import { useGameTurn } from '../../../hooks/useGameTurn';
+import GameBoard, { type DartHit } from '../../../components/dartboard/GameBoard';
 import { ROUTES } from '../../../constants';
+import type { Profile } from '../../../types';
+
+const CRICKET_NUMS = [20, 19, 18, 17, 16, 15, 25] as const;
+type CricketNum = (typeof CRICKET_NUMS)[number];
+
+interface NumberState { team1: number; team2: number; }
+interface CricketState {
+  marks: Record<CricketNum, NumberState>;
+  score: { team1: number; team2: number };
+}
+
+function initState(): CricketState {
+  const marks = {} as Record<CricketNum, NumberState>;
+  CRICKET_NUMS.forEach((n) => { marks[n] = { team1: 0, team2: 0 }; });
+  return { marks, score: { team1: 0, team2: 0 } };
+}
+
+function applyHit(
+  state: CricketState,
+  number: number,
+  multiplier: 1 | 2 | 3,
+  team: 'team1' | 'team2',
+): CricketState {
+  if (!CRICKET_NUMS.includes(number as CricketNum)) return state;
+  const n = number as CricketNum;
+  const opp = team === 'team1' ? 'team2' : 'team1';
+  const cur = state.marks[n][team];
+  const oppMarks = state.marks[n][opp];
+
+  if (cur >= 3 && oppMarks >= 3) return state; // fully closed
+
+  const raw = cur + multiplier;
+  const capped = Math.min(3, raw);
+
+  // Marks that go beyond 3 score points (if opponent hasn't closed)
+  const scoringHits =
+    oppMarks < 3
+      ? cur >= 3
+        ? multiplier           // already open — all multiplier marks score
+        : Math.max(0, raw - 3) // just opened — overflow scores
+      : 0;
+
+  const pointsPerHit = n === 25 ? 25 : n;
+  const points = scoringHits * pointsPerHit;
+
+  return {
+    marks: { ...state.marks, [n]: { ...state.marks[n], [team]: capped } },
+    score: { ...state.score, [team]: state.score[team] + points },
+  };
+}
+
+function isClosed(state: CricketState, n: CricketNum) {
+  return state.marks[n].team1 >= 3 && state.marks[n].team2 >= 3;
+}
+
+function isOpen(state: CricketState, n: CricketNum, team: 'team1' | 'team2') {
+  const opp = team === 'team1' ? 'team2' : 'team1';
+  return state.marks[n][team] >= 3 && state.marks[n][opp] < 3;
+}
+
+// ── Chalk marks component ───────────────────────────────────
+function ChalkMarks({ count, flipped }: { count: number; flipped?: boolean }) {
+  if (count === 0) return <span className="chalk-empty">·</span>;
+  const mark =
+    count === 1 ? '/' :
+    count === 2 ? 'X' :
+    '⊗';
+  return <span className={`chalk-mark chalk-mark-${count} ${flipped ? 'flipped' : ''}`}>{mark}</span>;
+}
 
 export default function CricketGameScreen() {
+  const { state } = useLocation();
   const navigate = useNavigate();
 
+  const team1: Profile[] = state?.team1 ?? [];
+  const team2: Profile[] = state?.team2 ?? [];
+
+  // Interleave teams for turn order
+  const maxLen = Math.max(team1.length, team2.length);
+  const playerNames: string[] = [];
+  const playerTeams: ('team1' | 'team2')[] = [];
+  for (let i = 0; i < maxLen; i++) {
+    if (team1[i]) { playerNames.push(team1[i].name); playerTeams.push('team1'); }
+    if (team2[i]) { playerNames.push(team2[i].name); playerTeams.push('team2'); }
+  }
+
+  const [cricket, setCricket] = useState<CricketState>(initState);
+
+  const { currentPlayerIndex, currentPlayer, nextPlayer, dartIndex, lastTurn, throwDart, throwMiss } =
+    useGameTurn(playerNames);
+
+  const currentTeam = playerTeams[currentPlayerIndex] ?? 'team1';
+  const team1Label = team1[0]?.name ?? 'Team 1';
+  const team2Label = team2[0]?.name ?? 'Team 2';
+
+  function handleHit(hit: DartHit) {
+    setCricket((prev) => applyHit(prev, hit.number, hit.multiplier, currentTeam));
+    throwDart(hit);
+  }
+
   return (
-    <div className="page">
-      <h2>Cricket — Game</h2>
-      <p>Coming soon</p>
-      <button onClick={() => navigate(ROUTES.CRICKET_RESULT)}>End Game</button>
+    <div className="cricket-screen">
+
+      {/* ── Top info bar ── */}
+      {/* ── Main: board left, chalk scoring right ── */}
+      <div className="cricket-main">
+
+        {/* Left: board + all game controls */}
+        <div className="cricket-board-side">
+
+          {/* Current player + dart indicators */}
+          <div className="board-info-top">
+            <div className="board-current-player">
+              <span className="board-info-label">Throwing</span>
+              <span className="board-info-value throwing">{currentPlayer}</span>
+            </div>
+            <div className="dart-indicators horizontal">
+              {[0, 1, 2].map((i) => (
+                <div key={i} className={`dart-dot ${i < dartIndex ? 'dart-thrown' : i === dartIndex ? 'dart-active' : 'dart-pending'}`} />
+              ))}
+            </div>
+          </div>
+
+          {/* Dartboard */}
+          <div className="board-svg-wrap">
+            <GameBoard onHit={handleHit} />
+          </div>
+
+          {/* Last throw + next player + miss */}
+          <div className="board-info-bottom">
+            <div className="board-meta-row">
+              {lastTurn && (
+                <div className="board-last-turn">
+                  <span className="board-info-label">Last — {lastTurn.playerName}</span>
+                  <span className="board-last-darts">
+                    {lastTurn.darts.map((d, i) => (
+                      <span key={i} className="board-last-dart">
+                        {d === 'miss' ? 'Miss' : d.label}
+                      </span>
+                    ))}
+                  </span>
+                </div>
+              )}
+              {nextPlayer && (
+                <div className="board-next-player">
+                  <span className="board-info-label">Next</span>
+                  <span className="board-info-value">{nextPlayer}</span>
+                </div>
+              )}
+            </div>
+            <button className="miss-btn full-miss-btn" onClick={throwMiss}>Miss</button>
+          </div>
+
+        </div>
+
+        {/* Right: Chalkboard scoring */}
+        <div className="chalkboard">
+
+          {/* Team headers */}
+          <div className="chalk-header">
+            <span className={`chalk-team-name ${currentTeam === 'team1' ? 'chalk-active-team' : ''}`}>
+              {team1Label}
+            </span>
+            <span className="chalk-divider" />
+            <span className={`chalk-team-name ${currentTeam === 'team2' ? 'chalk-active-team' : ''}`}>
+              {team2Label}
+            </span>
+          </div>
+
+          <div className="chalk-rule" />
+
+          {/* Number rows */}
+          {CRICKET_NUMS.map((n) => {
+            const closed = isClosed(cricket, n);
+            const t1Open = isOpen(cricket, n, 'team1');
+            const t2Open = isOpen(cricket, n, 'team2');
+            return (
+              <div key={n} className={`chalk-row ${closed ? 'chalk-row-closed' : ''}`}>
+                <div className={`chalk-marks-cell ${t1Open ? 'chalk-open' : ''}`}>
+                  <ChalkMarks count={cricket.marks[n].team1} />
+                </div>
+                <div className="chalk-number-cell">
+                  <span className={`chalk-number ${closed ? 'chalk-number-closed' : ''}`}>
+                    {n === 25 ? 'B' : n}
+                  </span>
+                </div>
+                <div className={`chalk-marks-cell ${t2Open ? 'chalk-open' : ''}`}>
+                  <ChalkMarks count={cricket.marks[n].team2} flipped />
+                </div>
+              </div>
+            );
+          })}
+
+          <div className="chalk-rule" />
+
+          {/* Scores */}
+          <div className="chalk-scores">
+            <span className="chalk-score-num">{cricket.score.team1}</span>
+            <span className="chalk-score-divider">·</span>
+            <span className="chalk-score-num">{cricket.score.team2}</span>
+          </div>
+
+        </div>
+      </div>
+
     </div>
   );
 }
