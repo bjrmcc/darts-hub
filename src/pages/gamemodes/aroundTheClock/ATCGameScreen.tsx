@@ -82,7 +82,7 @@ export default function ATCGameScreen() {
 
     if (isHit) {
       // Bull items must be hit one-at-a-time; regular numbers advance by multiplier if trebleDoubles
-      let adv = item.requiredMult !== null ? 1 : (trebleDoubles ? hit.multiplier : 1);
+      let adv: number = item.requiredMult !== null ? 1 : (trebleDoubles ? hit.multiplier : 1);
       // Never skip over a required-multiplier item (outer bull / inner bull)
       for (let step = 1; step < adv; step++) {
         if (seq[currentProgress + step]?.requiredMult !== null) { adv = step; break; }

@@ -9,27 +9,11 @@ import type { GameStats } from '../types';
 
 /* ── Stat helpers ───────────────────────────────────────── */
 
-type DartStats = { d1: string; d2: string; d3: string; all: string };
 type LeaderEntry = { name: string; avg: string };
 
 function multAvg(mults: number[]) {
   if (!mults.length) return '—';
   return (mults.reduce((s, m) => s + m, 0) / mults.length).toFixed(2);
-}
-
-function computeDartStats(
-  history: ReturnType<typeof useStatisticsStore.getState>['history'],
-  modes: string[] | null,
-  profileId: string | undefined,
-): DartStats {
-  const records = history
-    .filter(g => modes === null || modes.includes(g.gameMode))
-    .flatMap(g => (g.stats as GameStats).players)
-    .filter(p => !profileId || p.playerId === profileId);
-  const d1m = records.flatMap(r => r.d1m ?? []);
-  const d2m = records.flatMap(r => r.d2m ?? []);
-  const d3m = records.flatMap(r => r.d3m ?? []);
-  return { d1: multAvg(d1m), d2: multAvg(d2m), d3: multAvg(d3m), all: multAvg([...d1m, ...d2m, ...d3m]) };
 }
 
 
@@ -179,20 +163,6 @@ function ModeMpvPreview({ mpv }: { mpv: string }) {
   );
 }
 
-function DartStatsPreview({ s }: { s: DartStats }) {
-  return (
-    <div className="home-tile-preview">
-      <div className="htp-cols">
-        {[['D1', s.d1], ['D2', s.d2], ['D3', s.d3], ['All', s.all]].map(([lbl, val]) => (
-          <div key={lbl} className={`htp-col${lbl === 'All' ? ' htp-col--all' : ''}`}>
-            <span className="htp-col-label">{lbl}</span>
-            <span className="htp-col-val">{val}</span>
-          </div>
-        ))}
-      </div>
-    </div>
-  );
-}
 
 function LeaderPreview({ entries }: { entries: LeaderEntry[] }) {
   if (!entries.length) {

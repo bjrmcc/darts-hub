@@ -208,7 +208,7 @@ export default function CricketSetupScreen() {
                     <PlayerPicker
                       profiles={available}
                       onSelect={(p) => addToTeam(teamNum, p)}
-                      placeholder="Search to add…"
+                      label="Search to add…"
                       requireAuth={!practice}
                     />
                   )}

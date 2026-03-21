@@ -15,10 +15,6 @@ const FILTERS: [Filter, string][] = [
 
 const ALL_NUMBERS = [25, 20, 19, 18, 17, 16, 15, 14, 13, 12, 11, 10, 9, 8, 7, 6, 5, 4, 3, 2, 1] as const;
 
-function pct(hits: number, total: number): string {
-  if (total === 0) return '—';
-  return `${Math.round((hits / total) * 100)}%`;
-}
 
 export default function FreeThrowStatsScreen() {
   const goto = useGoto();

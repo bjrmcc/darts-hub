@@ -11,7 +11,7 @@ import type { GameStats, PlayerDartStats, GameResult } from '../../types';
 type FilterKey = '5' | 'week' | 'month' | 'custom';
 
 const CRICKET_NUMS = [20, 19, 18, 17, 16, 15, 25];
-const CRICKET_SET = new Set(CRICKET_NUMBERS as number[]);
+const CRICKET_SET = new Set<number>([...CRICKET_NUMBERS]);
 
 interface NumStat {
   number: number;
