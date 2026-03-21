@@ -1,4 +1,4 @@
-import { useState, useRef } from 'react';
+import { useState, useRef, useEffect } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { useGameTurn, type TurnSnapshot } from '../../../hooks/useGameTurn';
 import GameBoard, { type DartHit } from '../../../components/dartboard/GameBoard';
@@ -7,6 +7,7 @@ import type { Profile } from '../../../types';
 import WinOverlay from '../../../components/shared/WinOverlay';
 import { useStatisticsStore } from '../../../store/statisticsStore';
 import { buildGameStats } from '../../../utils/buildGameStats';
+import { useGameSessionStore } from '../../../store/gameSessionStore';
 
 const CRICKET_NUMS = [20, 19, 18, 17, 16, 15, 25] as const;
 type CricketNum = (typeof CRICKET_NUMS)[number];
@@ -95,6 +96,23 @@ export default function CricketGameScreen() {
     useGameTurn(playerNames);
 
   const addResult = useStatisticsStore((s) => s.addResult);
+  const { startSession, pushState, endSession } = useGameSessionStore();
+  const sessionStarted = useRef(false);
+  const isFirstSync = useRef(true);
+
+  const allPlayerIds = [...team1, ...team2].map((p) => p.id);
+  useEffect(() => {
+    startSession('cricket', allPlayerIds, { cricket, currentPlayerIndex, playerNames })
+      .then(() => { sessionStarted.current = true; });
+    return () => { endSession(); };
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  useEffect(() => {
+    if (isFirstSync.current) { isFirstSync.current = false; return; }
+    if (winner || !sessionStarted.current) return;
+    pushState({ cricket, currentPlayerIndex, dartIndex, playerNames });
+  }, [cricket, currentPlayerIndex, dartIndex]);
 
   const snapshotsRef = useRef<Snap[]>([]);
   const [canUndo, setCanUndo] = useState(false);

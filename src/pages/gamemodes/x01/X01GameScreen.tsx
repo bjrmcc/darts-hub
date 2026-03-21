@@ -1,4 +1,4 @@
-import { useState, useRef } from 'react';
+import { useState, useRef, useEffect } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { useGameTurn, type TurnSnapshot } from '../../../hooks/useGameTurn';
 import GameBoard, { type DartHit } from '../../../components/dartboard/GameBoard';
@@ -7,6 +7,7 @@ import type { Profile } from '../../../types';
 import WinOverlay from '../../../components/shared/WinOverlay';
 import { useStatisticsStore } from '../../../store/statisticsStore';
 import { buildGameStats } from '../../../utils/buildGameStats';
+import { useGameSessionStore } from '../../../store/gameSessionStore';
 
 const MAX_HISTORY = 6;
 
@@ -44,6 +45,25 @@ export default function X01GameScreen() {
     useGameTurn(playerNames);
 
   const addResult = useStatisticsStore((s) => s.addResult);
+  const { startSession, pushState, endSession } = useGameSessionStore();
+  const sessionStarted = useRef(false);
+  const isFirstSync = useRef(true);
+
+  // Create session on mount, clean up on unmount
+  useEffect(() => {
+    startSession('x01', players.map((p) => p.id), {
+      variant, playerNames, scores, currentPlayerIndex,
+    }).then(() => { sessionStarted.current = true; });
+    return () => { endSession(); };
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  // Push state after each turn/dart change
+  useEffect(() => {
+    if (isFirstSync.current) { isFirstSync.current = false; return; }
+    if (winner || !sessionStarted.current) return;
+    pushState({ variant, playerNames, scores, currentPlayerIndex, dartIndex });
+  }, [scores, currentPlayerIndex, dartIndex]);
 
   const snapshotsRef = useRef<X01Snap[]>([]);
   const [canUndo, setCanUndo] = useState(false);

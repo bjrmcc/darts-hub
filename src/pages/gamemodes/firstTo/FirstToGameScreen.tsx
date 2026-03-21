@@ -1,4 +1,4 @@
-import { useState, useRef } from 'react';
+import { useState, useRef, useEffect } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { useGameTurn, type TurnSnapshot } from '../../../hooks/useGameTurn';
 import GameBoard, { type DartHit } from '../../../components/dartboard/GameBoard';
@@ -7,6 +7,7 @@ import type { Profile } from '../../../types';
 import WinOverlay from '../../../components/shared/WinOverlay';
 import { useStatisticsStore } from '../../../store/statisticsStore';
 import { buildGameStats } from '../../../utils/buildGameStats';
+import { useGameSessionStore } from '../../../store/gameSessionStore';
 
 // Fewer players = wider columns = more groups of 5 fit per row
 function groupsPerRow(playerCount: number): number {
@@ -65,6 +66,22 @@ export default function FirstToGameScreen() {
     useGameTurn(playerNames);
 
   const addResult = useStatisticsStore((s) => s.addResult);
+  const { startSession, pushState, endSession } = useGameSessionStore();
+  const sessionStarted = useRef(false);
+  const isFirstSync = useRef(true);
+
+  useEffect(() => {
+    startSession('firstTo', players.map((p) => p.id), { hits, targetNumber, targetHits, currentPlayerIndex, playerNames })
+      .then(() => { sessionStarted.current = true; });
+    return () => { endSession(); };
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  useEffect(() => {
+    if (isFirstSync.current) { isFirstSync.current = false; return; }
+    if (winner || !sessionStarted.current) return;
+    pushState({ hits, targetNumber, targetHits, currentPlayerIndex, dartIndex, playerNames });
+  }, [hits, currentPlayerIndex, dartIndex]);
 
   const snapshotsRef = useRef<FTSnap[]>([]);
   const [canUndo, setCanUndo] = useState(false);

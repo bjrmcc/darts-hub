@@ -1,14 +1,30 @@
 import { BrowserRouter, Routes, Route } from 'react-router-dom';
+import { useEffect } from 'react';
 import { ROUTES } from './constants';
 import Header from './components/shared/Header';
 import RequireProfile from './components/shared/RequireProfile';
 import LoadingScreen from './components/shared/LoadingScreen';
 import { useTransitionStore } from './store/transitionStore';
+import { useProfilesStore } from './store/profilesStore';
+import { useStatisticsStore } from './store/statisticsStore';
 
 function TransitionOverlay() {
   const variant = useTransitionStore((s) => s.variant);
   if (!variant) return null;
   return <LoadingScreen quick={variant === 'quick'} />;
+}
+
+function DataBootstrap() {
+  useEffect(() => {
+    const { fetch: fetchProfiles, subscribe: subProfiles } = useProfilesStore.getState();
+    const { fetch: fetchStats, subscribe: subStats } = useStatisticsStore.getState();
+    fetchProfiles();
+    fetchStats();
+    const unsubProfiles = subProfiles();
+    const unsubStats = subStats();
+    return () => { unsubProfiles(); unsubStats(); };
+  }, []);
+  return null;
 }
 
 import DartsHubScreen from './pages/DartsHubScreen';
@@ -50,6 +66,7 @@ import SettingsScreen from './pages/settings/SettingsScreen';
 export default function App() {
   return (
     <BrowserRouter>
+      <DataBootstrap />
       <Header />
       <TransitionOverlay />
       <Routes>
