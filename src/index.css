@@ -659,6 +659,8 @@ button {
   cursor: pointer;
   width: 100%;
   max-width: 300px;
+  touch-action: manipulation; /* eliminates 300ms tap delay */
+  user-select: none;          /* prevents text selection on rapid taps */
 }
 
 button:hover {
@@ -6806,3 +6808,125 @@ button.secondary:hover {
 .ldb-overall-val--180 { color: #e05555; }
 .ldb-overall-val--mpv { color: #5090b8; }
 .ldb-overall-val--dim { color: #444; font-size: 0.72rem; }
+
+/* ═══════════════════════════════════════════════════════════════
+   MOBILE & TOUCH — responsive overrides
+   All changes below are additive; desktop layout is unchanged.
+   ═══════════════════════════════════════════════════════════════ */
+
+/* ── Active state feedback (all devices, most important for touch) ── */
+.miss-btn:active:not(:disabled) {
+  transform: scale(0.97);
+  opacity: 0.75;
+  transition: transform 0.05s, opacity 0.05s;
+}
+.game-back-btn:active,
+.undo-btn:active:not(:disabled),
+.win-exit-btn:active {
+  transform: scale(0.96);
+  opacity: 0.7;
+  transition: transform 0.05s, opacity 0.05s;
+}
+
+/* ── Neutralise sticky :hover on pure-touch devices ── */
+@media (hover: none) {
+  .miss-btn:hover        { background: #2a2a2a; border-color: #444; color: #aaa; }
+  .game-back-btn:hover   { background: none;    border-color: #333; color: #666; }
+  .undo-btn:hover        { background: none;    border-color: #333; color: #666; }
+  .win-exit-btn:hover    { background: none;    border-color: #444; color: #888; }
+}
+
+/* ── Phones and small tablets (≤ 768px) ── */
+@media (max-width: 768px) {
+
+  /* Dynamic viewport height — handles mobile browser chrome collapsing */
+  .cricket-screen,
+  .game-screen {
+    height: calc(100dvh - 52px);
+  }
+
+  /* Narrow chalkboard → dartboard gets more horizontal room */
+  .chalkboard {
+    width: 44%;
+  }
+
+  /* Info strip — more compact so dartboard takes more vertical space */
+  .board-info-top {
+    padding: 0.25rem 0.5rem;
+  }
+
+  /* Bottom controls — centre column grows to fill space (miss btn benefits most) */
+  .board-info-bottom {
+    grid-template-columns: auto 1fr auto;
+    padding: 0.4rem 0.5rem;
+    gap: 0.4rem;
+  }
+
+  /* Miss — primary gameplay action, needs a large tap target */
+  .miss-btn.full-miss-btn {
+    min-height: 52px;
+    padding: 0.75rem 0.5rem;
+    font-size: 1.05rem;
+    font-weight: 600;
+    border-radius: 10px;
+  }
+
+  /* Back & Undo — secondary controls, meet 44px minimum */
+  .game-back-btn,
+  .undo-btn {
+    min-height: 44px;
+    padding: 0.5rem 0.75rem;
+    font-size: 0.82rem;
+  }
+
+  /* Win exit button */
+  .win-exit-btn {
+    min-height: 48px;
+    padding: 0.6rem 1rem;
+    font-size: 0.9rem;
+  }
+}
+
+/* ── Narrow phones (≤ 480px) ── */
+@media (max-width: 480px) {
+
+  /* Chalkboard as narrow as it can go while remaining readable */
+  .chalkboard {
+    width: 37%;
+    padding: 0.4rem 0.3rem;
+  }
+
+  /* Cricket chalkboard — tighter rows, smaller marks */
+  .chalk-marks-cell     { min-height: 26px; }
+  .chalk-number         { font-size: 1.1rem; }
+  .chalk-mark           { font-size: 1.3rem; }
+  .chalk-mark-3         { font-size: 1.4rem; }
+  .chalk-score-num      { font-size: 1.6rem; }
+  .chalk-team-name      { font-size: 0.88rem; }
+  .chalk-active-team    { font-size: 1rem; }
+  .chalk-number-cell    { width: 32px; }
+
+  /* X01 chalkboard — score still large, history smaller */
+  .chalk-x01-score      { font-size: 3rem; }
+  .chalk-x01-prev       { font-size: 1.5rem; }
+  .chalk-x01-player     { padding: 0.5rem 0.3rem; }
+
+  /* ATC chalkboard — grid fits in narrower space */
+  .atc-num              { font-size: 1.2rem; }
+  .atc-num--target      { font-size: 1.4rem; }
+  .atc-grid             { gap: 0.15rem 0.3rem; }
+  .chalk-atc-player     { padding: 0.5rem 0.3rem; }
+
+  /* First To chalkboard */
+  .tally-group          { font-size: 1.6rem; }
+  .chalk-ft-target      { font-size: 1rem; }
+  .chalk-ft-count       { font-size: 1.1rem; }
+  .chalk-ft-player      { padding: 0.5rem 0.3rem; }
+
+  /* Back & Undo — tighter horizontal padding on small screens */
+  .game-back-btn,
+  .undo-btn {
+    padding: 0.5rem 0.5rem;
+    font-size: 0.75rem;
+  }
+}
