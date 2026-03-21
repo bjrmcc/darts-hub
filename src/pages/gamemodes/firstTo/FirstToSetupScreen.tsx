@@ -1,5 +1,7 @@
 import { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useLocation } from 'react-router-dom';
+import { useGoto } from '../../../hooks/useGoto';
+import { useLastSetupStore } from '../../../store/lastSetupStore';
 import {
   DndContext,
   closestCenter,
@@ -16,6 +18,7 @@ import {
 import { useProfilesStore } from '../../../store/profilesStore';
 import SortablePlayer from '../../../components/shared/SortablePlayer';
 import StepToggle from '../../../components/shared/StepToggle';
+import PlayerPicker from '../../../components/shared/PlayerPicker';
 import MiniDartboard from '../../../components/dartboard/MiniDartboard';
 import { ROUTES } from '../../../constants';
 import type { Profile } from '../../../types';
@@ -24,18 +27,19 @@ type Mode = 'players' | 'cpu';
 type Legs = 1 | 3 | 5;
 
 export default function FirstToSetupScreen() {
-  const navigate = useNavigate();
+  const goto = useGoto();
+  const saveSetup = useLastSetupStore((s) => s.save);
+  const { state } = useLocation();
   const { profiles, activeProfileId } = useProfilesStore();
   const activeProfile = profiles.find((p) => p.id === activeProfileId);
 
-  const [mode, setMode] = useState<Mode>('players');
-  const [players, setPlayers] = useState<Profile[]>(activeProfile ? [activeProfile] : []);
-  const [difficulty, setDifficulty] = useState(15);
-  const [legs, setLegs] = useState<Legs>(1);
-  const [targetNumber, setTargetNumber] = useState<number | null>(null);
-  const [targetHits, setTargetHits] = useState(10);
-  const [practice, setPractice] = useState(false);
-  const [showAddPlayer, setShowAddPlayer] = useState(false);
+  const [mode, setMode] = useState<Mode>(state?.mode ?? 'players');
+  const [players, setPlayers] = useState<Profile[]>(state?.players ?? (activeProfile ? [activeProfile] : []));
+  const [difficulty, setDifficulty] = useState(state?.difficulty ?? 15);
+  const [legs, setLegs] = useState<Legs>(state?.legs ?? 1);
+  const [targetNumber, setTargetNumber] = useState<number | null>(state?.targetNumber ?? null);
+  const [targetHits, setTargetHits] = useState(state?.targetHits ?? 10);
+  const [practice, setPractice] = useState(state?.practice ?? false);
 
   const sensors = useSensors(useSensor(PointerSensor));
 
@@ -51,7 +55,6 @@ export default function FirstToSetupScreen() {
 
   function addPlayer(profile: Profile) {
     setPlayers((prev) => [...prev, profile]);
-    setShowAddPlayer(false);
   }
 
   function removePlayer(id: string) {
@@ -101,18 +104,7 @@ export default function FirstToSetupScreen() {
           </DndContext>
 
           {availableToAdd.length > 0 && (
-            <button className="secondary" onClick={() => setShowAddPlayer((v) => !v)}>
-              + Add Player
-            </button>
-          )}
-          {showAddPlayer && (
-            <div className="add-player-list">
-              {availableToAdd.map((p) => (
-                <button key={p.id} className="secondary" onClick={() => addPlayer(p)}>
-                  {p.name}
-                </button>
-              ))}
-            </div>
+            <PlayerPicker profiles={availableToAdd} onSelect={addPlayer} requireAuth={!practice} />
           )}
           {players.length < 2 && <p className="hint">Add at least one more player to start.</p>}
         </div>
@@ -161,7 +153,7 @@ export default function FirstToSetupScreen() {
           </div>
           <button
             className={`toggle-btn ${practice ? 'toggle-on' : ''}`}
-            onClick={() => setPractice((v) => !v)}
+            onClick={() => setPractice((v: boolean) => !v)}
           >
             {practice ? 'On' : 'Off'}
           </button>
@@ -172,11 +164,15 @@ export default function FirstToSetupScreen() {
 
       <button
         disabled={!canStart}
-        onClick={() => navigate(ROUTES.FIRST_TO_GAME, { state: { mode, players, difficulty, targetNumber, targetHits, legs, practice } })}
+        onClick={() => {
+          const gs = { mode, players, difficulty, targetNumber, targetHits, legs, practice };
+          saveSetup({ route: ROUTES.FIRST_TO_SETUP, gameState: gs });
+          goto(ROUTES.FIRST_TO_GAME, { state: gs }, 'long');
+        }}
       >
         Start Game
       </button>
-      <button className="secondary" onClick={() => navigate(ROUTES.GAMEMODES)}>
+      <button className="secondary" onClick={() => goto(state?._from === 'hub' ? ROUTES.HOME : ROUTES.PLAY)}>
         Back
       </button>
     </div>

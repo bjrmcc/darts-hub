@@ -1,10 +1,10 @@
-import { useNavigate } from 'react-router-dom';
+import { useGoto } from '../../hooks/useGoto';
 import { useStatisticsStore } from '../../store/statisticsStore';
 import { useProfilesStore } from '../../store/profilesStore';
 import { ROUTES } from '../../constants';
 
 export default function LeaderboardScreen() {
-  const navigate = useNavigate();
+  const goto = useGoto();
   const profiles = useProfilesStore((s) => s.profiles);
   const history = useStatisticsStore((s) => s.history);
 
@@ -29,7 +29,7 @@ export default function LeaderboardScreen() {
           ))}
         </ol>
       )}
-      <button onClick={() => navigate(ROUTES.HOME)}>Back</button>
+      <button onClick={() => goto(ROUTES.STATS_HOME)}>Back</button>
     </div>
   );
 }

@@ -1,5 +1,7 @@
 import { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useLocation } from 'react-router-dom';
+import { useGoto } from '../../../hooks/useGoto';
+import { useLastSetupStore } from '../../../store/lastSetupStore';
 import {
   DndContext,
   closestCenter,
@@ -16,6 +18,7 @@ import {
 import { useProfilesStore } from '../../../store/profilesStore';
 import SortablePlayer from '../../../components/shared/SortablePlayer';
 import StepToggle from '../../../components/shared/StepToggle';
+import PlayerPicker from '../../../components/shared/PlayerPicker';
 import { ROUTES } from '../../../constants';
 import type { Profile, X01Variant } from '../../../types';
 
@@ -23,20 +26,23 @@ type Mode = 'players' | 'cpu';
 type Legs = 1 | 3 | 5;
 
 export default function X01SetupScreen() {
-  const navigate = useNavigate();
+  const goto = useGoto();
+  const saveSetup = useLastSetupStore((s) => s.save);
+  const { state } = useLocation();
   const { profiles, activeProfileId } = useProfilesStore();
 
   const activeProfile = profiles.find((p) => p.id === activeProfileId);
 
-  const [variant, setVariant] = useState<X01Variant>(501);
-  const [mode, setMode] = useState<Mode>('players');
+  const [variant, setVariant] = useState<X01Variant>(state?.variant ?? 501);
+  const [mode, setMode] = useState<Mode>(state?.mode ?? 'players');
   const [players, setPlayers] = useState<Profile[]>(
-    activeProfile ? [activeProfile] : []
+    state?.players ?? (activeProfile ? [activeProfile] : [])
   );
-  const [difficulty, setDifficulty] = useState(15);
-  const [legs, setLegs] = useState<Legs>(1);
-  const [practice, setPractice] = useState(false);
-  const [showAddPlayer, setShowAddPlayer] = useState(false);
+  const [difficulty, setDifficulty] = useState(state?.difficulty ?? 15);
+  const [legs, setLegs] = useState<Legs>(state?.legs ?? 1);
+  const [doubleIn, setDoubleIn] = useState(state?.doubleIn ?? false);
+  const [doubleOut, setDoubleOut] = useState(state?.doubleOut ?? true);
+  const [practice, setPractice] = useState(state?.practice ?? false);
 
   const sensors = useSensors(useSensor(PointerSensor));
 
@@ -54,7 +60,6 @@ export default function X01SetupScreen() {
 
   function addPlayer(profile: Profile) {
     setPlayers((prev) => [...prev, profile]);
-    setShowAddPlayer(false);
   }
 
   function removePlayer(id: string) {
@@ -131,22 +136,7 @@ export default function X01SetupScreen() {
           </DndContext>
 
           {availableToAdd.length > 0 && (
-            <button
-              className="secondary"
-              onClick={() => setShowAddPlayer((v) => !v)}
-            >
-              + Add Player
-            </button>
-          )}
-
-          {showAddPlayer && (
-            <div className="add-player-list">
-              {availableToAdd.map((p) => (
-                <button key={p.id} className="secondary" onClick={() => addPlayer(p)}>
-                  {p.name}
-                </button>
-              ))}
-            </div>
+            <PlayerPicker profiles={availableToAdd} onSelect={addPlayer} requireAuth={!practice} />
           )}
 
           {players.length < 2 && (
@@ -168,6 +158,35 @@ export default function X01SetupScreen() {
           />
         </div>
       )}
+
+      {/* Double In / Double Out */}
+      <div className="setup-section">
+        <p className="section-label">Rules</p>
+        <div className="practice-toggle">
+          <div>
+            <p className="section-label">Double In</p>
+            <p className="hint">Must hit a double to start scoring</p>
+          </div>
+          <button
+            className={`toggle-btn ${doubleIn ? 'toggle-on' : ''}`}
+            onClick={() => setDoubleIn((v: boolean) => !v)}
+          >
+            {doubleIn ? 'On' : 'Off'}
+          </button>
+        </div>
+        <div className="practice-toggle">
+          <div>
+            <p className="section-label">Double Out</p>
+            <p className="hint">Must finish on a double</p>
+          </div>
+          <button
+            className={`toggle-btn ${doubleOut ? 'toggle-on' : ''}`}
+            onClick={() => setDoubleOut((v: boolean) => !v)}
+          >
+            {doubleOut ? 'On' : 'Off'}
+          </button>
+        </div>
+      </div>
 
       {/* Legs */}
       <div className="setup-section">
@@ -194,17 +213,21 @@ export default function X01SetupScreen() {
           </div>
           <button
             className={`toggle-btn ${practice ? 'toggle-on' : ''}`}
-            onClick={() => setPractice((v) => !v)}
+            onClick={() => setPractice((v: boolean) => !v)}
           >
             {practice ? 'On' : 'Off'}
           </button>
         </div>
       </div>
 
-      <button disabled={!canStart} onClick={() => navigate(ROUTES.X01_GAME, { state: { variant, mode, players, difficulty, legs, practice } })}>
+      <button disabled={!canStart} onClick={() => {
+        const gs = { variant, mode, players, difficulty, legs, doubleIn, doubleOut, practice };
+        saveSetup({ route: ROUTES.X01_SETUP, gameState: gs });
+        goto(ROUTES.X01_GAME, { state: gs }, 'long');
+      }}>
         Start Game
       </button>
-      <button className="secondary" onClick={() => navigate(ROUTES.GAMEMODES)}>
+      <button className="secondary" onClick={() => goto(state?._from === 'hub' ? ROUTES.HOME : ROUTES.PLAY)}>
         Back
       </button>
     </div>

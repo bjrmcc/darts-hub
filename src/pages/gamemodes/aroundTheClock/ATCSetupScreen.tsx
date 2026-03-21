@@ -1,5 +1,7 @@
 import { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useLocation } from 'react-router-dom';
+import { useGoto } from '../../../hooks/useGoto';
+import { useLastSetupStore } from '../../../store/lastSetupStore';
 import {
   DndContext,
   closestCenter,
@@ -16,6 +18,7 @@ import {
 import { useProfilesStore } from '../../../store/profilesStore';
 import SortablePlayer from '../../../components/shared/SortablePlayer';
 import StepToggle from '../../../components/shared/StepToggle';
+import PlayerPicker from '../../../components/shared/PlayerPicker';
 import { ROUTES } from '../../../constants';
 import type { Profile } from '../../../types';
 
@@ -23,19 +26,20 @@ type Mode = 'players' | 'cpu';
 type Legs = 1 | 3 | 5;
 
 export default function ATCSetupScreen() {
-  const navigate = useNavigate();
+  const goto = useGoto();
+  const saveSetup = useLastSetupStore((s) => s.save);
+  const { state } = useLocation();
   const { profiles, activeProfileId } = useProfilesStore();
   const activeProfile = profiles.find((p) => p.id === activeProfileId);
 
-  const [mode, setMode] = useState<Mode>('players');
-  const [difficulty, setDifficulty] = useState(15);
-  const [legs, setLegs] = useState<Legs>(1);
-  const [trebleDoubles, setTrebleDoubles] = useState(false);
-  const [practice, setPractice] = useState(false);
-  const [players, setPlayers] = useState<Profile[]>(
-    activeProfile ? [activeProfile] : []
-  );
-  const [showAddPlayer, setShowAddPlayer] = useState(false);
+  const defaultPlayers = activeProfile ? [activeProfile] : [];
+  const [mode, setMode] = useState<Mode>(state?.mode ?? 'players');
+  const [difficulty, setDifficulty] = useState(state?.difficulty ?? 15);
+  const [legs, setLegs] = useState<Legs>(state?.legs ?? 1);
+  const [trebleDoubles, setTrebleDoubles] = useState(state?.trebleDoubles ?? true);
+  const [bullOut, setBullOut] = useState<boolean>(state?.bullOut ?? true);
+  const [practice, setPractice] = useState(state?.practice ?? false);
+  const [players, setPlayers] = useState<Profile[]>(state?.players ?? defaultPlayers);
 
   const sensors = useSensors(useSensor(PointerSensor));
 
@@ -53,7 +57,6 @@ export default function ATCSetupScreen() {
 
   function addPlayer(profile: Profile) {
     setPlayers((prev) => [...prev, profile]);
-    setShowAddPlayer(false);
   }
 
   function removePlayer(id: string) {
@@ -61,7 +64,7 @@ export default function ATCSetupScreen() {
   }
 
   const canStart =
-    mode === 'cpu' ? !!activeProfile : players.length >= 1;
+    mode === 'cpu' ? !!activeProfile : players.length >= 2;
 
   return (
     <div className="page">
@@ -114,22 +117,10 @@ export default function ATCSetupScreen() {
           </DndContext>
 
           {availableToAdd.length > 0 && (
-            <button
-              className="secondary"
-              onClick={() => setShowAddPlayer((v) => !v)}
-            >
-              + Add Player
-            </button>
+            <PlayerPicker profiles={availableToAdd} onSelect={addPlayer} requireAuth={!practice} />
           )}
-
-          {showAddPlayer && (
-            <div className="add-player-list">
-              {availableToAdd.map((p) => (
-                <button key={p.id} className="secondary" onClick={() => addPlayer(p)}>
-                  {p.name}
-                </button>
-              ))}
-            </div>
+          {players.length < 2 && (
+            <p className="hint">Add at least one more player to start.</p>
           )}
         </div>
       )}
@@ -150,19 +141,32 @@ export default function ATCSetupScreen() {
 
       {/* Trebles & Doubles */}
       <div className="setup-section">
-        <p className="section-label">Trebles & Doubles</p>
-        <div className="option-group">
+        <div className="practice-toggle">
+          <div>
+            <p className="section-label">Trebles & Doubles</p>
+            <p className="hint">Skip a number with a double, skip two with a treble</p>
+          </div>
           <button
-            className={trebleDoubles ? 'selected' : ''}
-            onClick={() => setTrebleDoubles(true)}
+            className={`toggle-btn ${trebleDoubles ? 'toggle-on' : ''}`}
+            onClick={() => setTrebleDoubles((v: boolean) => !v)}
           >
-            On
+            {trebleDoubles ? 'On' : 'Off'}
           </button>
+        </div>
+      </div>
+
+      {/* Bull Out */}
+      <div className="setup-section">
+        <div className="practice-toggle">
+          <div>
+            <p className="section-label">Bull Out</p>
+            <p className="hint">Must finish on outer bull then bullseye</p>
+          </div>
           <button
-            className={!trebleDoubles ? 'selected' : ''}
-            onClick={() => setTrebleDoubles(false)}
+            className={`toggle-btn ${bullOut ? 'toggle-on' : ''}`}
+            onClick={() => setBullOut((v: boolean) => !v)}
           >
-            Off
+            {bullOut ? 'On' : 'Off'}
           </button>
         </div>
       </div>
@@ -192,17 +196,21 @@ export default function ATCSetupScreen() {
           </div>
           <button
             className={`toggle-btn ${practice ? 'toggle-on' : ''}`}
-            onClick={() => setPractice((v) => !v)}
+            onClick={() => setPractice((v: boolean) => !v)}
           >
             {practice ? 'On' : 'Off'}
           </button>
         </div>
       </div>
 
-      <button disabled={!canStart} onClick={() => navigate(ROUTES.ATC_GAME, { state: { mode, players, difficulty, trebleDoubles, legs, practice } })}>
+      <button disabled={!canStart} onClick={() => {
+        const gs = { mode, players, difficulty, trebleDoubles, legs, practice, bullOut };
+        saveSetup({ route: ROUTES.ATC_SETUP, gameState: gs });
+        goto(ROUTES.ATC_GAME, { state: gs }, 'long');
+      }}>
         Start Game
       </button>
-      <button className="secondary" onClick={() => navigate(ROUTES.GAMEMODES)}>
+      <button className="secondary" onClick={() => goto(state?._from === 'hub' ? ROUTES.HOME : ROUTES.PLAY)}>
         Back
       </button>
     </div>

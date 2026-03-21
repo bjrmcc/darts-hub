@@ -1,9 +1,12 @@
-import { useState } from 'react';
+import { useState, useRef } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
-import { useGameTurn } from '../../../hooks/useGameTurn';
+import { useGameTurn, type TurnSnapshot } from '../../../hooks/useGameTurn';
 import GameBoard, { type DartHit } from '../../../components/dartboard/GameBoard';
 import { ROUTES } from '../../../constants';
 import type { Profile } from '../../../types';
+import WinOverlay from '../../../components/shared/WinOverlay';
+import { useStatisticsStore } from '../../../store/statisticsStore';
+import { buildGameStats } from '../../../utils/buildGameStats';
 
 const CRICKET_NUMS = [20, 19, 18, 17, 16, 15, 25] as const;
 type CricketNum = (typeof CRICKET_NUMS)[number];
@@ -13,6 +16,8 @@ interface CricketState {
   marks: Record<CricketNum, NumberState>;
   score: { team1: number; team2: number };
 }
+
+interface Snap { turn: TurnSnapshot; cricket: CricketState; }
 
 function initState(): CricketState {
   const marks = {} as Record<CricketNum, NumberState>;
@@ -37,13 +42,7 @@ function applyHit(
   const raw = cur + multiplier;
   const capped = Math.min(3, raw);
 
-  // Marks that go beyond 3 score points (if opponent hasn't closed)
-  const scoringHits =
-    oppMarks < 3
-      ? cur >= 3
-        ? multiplier           // already open — all multiplier marks score
-        : Math.max(0, raw - 3) // just opened — overflow scores
-      : 0;
+  const scoringHits = oppMarks < 3 && cur >= 3 ? multiplier : 0;
 
   const pointsPerHit = n === 25 ? 25 : n;
   const points = scoringHits * pointsPerHit;
@@ -80,7 +79,6 @@ export default function CricketGameScreen() {
   const team1: Profile[] = state?.team1 ?? [];
   const team2: Profile[] = state?.team2 ?? [];
 
-  // Interleave teams for turn order
   const maxLen = Math.max(team1.length, team2.length);
   const playerNames: string[] = [];
   const playerTeams: ('team1' | 'team2')[] = [];
@@ -90,52 +88,72 @@ export default function CricketGameScreen() {
   }
 
   const [cricket, setCricket] = useState<CricketState>(initState);
+  const [winner, setWinner] = useState<string | null>(null);
+  const [viewing, setViewing] = useState(false);
 
-  const { currentPlayerIndex, currentPlayer, nextPlayer, dartIndex, lastTurn, throwDart, throwMiss } =
+  const { currentPlayerIndex, currentPlayer, nextPlayer, dartIndex, lastTurn, throwDart, throwMiss, snapshot, restore, getAllDarts } =
     useGameTurn(playerNames);
 
+  const addResult = useStatisticsStore((s) => s.addResult);
+
+  const snapshotsRef = useRef<Snap[]>([]);
+  const [canUndo, setCanUndo] = useState(false);
+
   const currentTeam = playerTeams[currentPlayerIndex] ?? 'team1';
-  const team1Label = team1[0]?.name ?? 'Team 1';
-  const team2Label = team2[0]?.name ?? 'Team 2';
+  const team1Label = team1.length ? team1.map((p) => p.name).join(' & ') : 'Team 1';
+  const team2Label = team2.length ? team2.map((p) => p.name).join(' & ') : 'Team 2';
+
+  function pushSnapshot(cricketState: CricketState) {
+    snapshotsRef.current.push({ turn: snapshot(), cricket: cricketState });
+    setCanUndo(true);
+  }
+
+  function handleUndo() {
+    const prev = snapshotsRef.current.pop();
+    if (!prev) return;
+    restore(prev.turn);
+    setCricket(prev.cricket);
+    setCanUndo(snapshotsRef.current.length > 0);
+  }
 
   function handleHit(hit: DartHit) {
-    setCricket((prev) => applyHit(prev, hit.number, hit.multiplier, currentTeam));
+    pushSnapshot(cricket);
+    const newCricket = applyHit(cricket, hit.number, hit.multiplier, currentTeam);
+    setCricket(newCricket);
     throwDart(hit);
+    const opp = currentTeam === 'team1' ? 'team2' : 'team1';
+    const allClosed = CRICKET_NUMS.every((n) => newCricket.marks[n][currentTeam] >= 3);
+    if (allClosed && newCricket.score[currentTeam] >= newCricket.score[opp]) {
+      const winningTeamPlayers = currentTeam === 'team1' ? team1 : team2;
+      const allPlayers = [...team1, ...team2];
+      const winnerIds = winningTeamPlayers.map((p) => p.id);
+      addResult({
+        id: crypto.randomUUID(),
+        gameMode: 'cricket',
+        players: allPlayers.map((p) => p.id),
+        winnerId: winnerIds[0],
+        date: Date.now(),
+        stats: buildGameStats(allPlayers, getAllDarts(), winnerIds),
+      });
+      setWinner(currentTeam === 'team1' ? team1Label : team2Label);
+    }
+  }
+
+  function handleMiss() {
+    pushSnapshot(cricket);
+    throwMiss();
   }
 
   return (
     <div className="cricket-screen">
-
-      {/* ── Top info bar ── */}
-      {/* ── Main: board left, chalk scoring right ── */}
       <div className="cricket-main">
 
-        {/* Left: board + all game controls */}
         <div className="cricket-board-side">
 
-          {/* Current player + dart indicators */}
           <div className="board-info-top">
-            <div className="board-current-player">
-              <span className="board-info-label">Throwing</span>
-              <span className="board-info-value throwing">{currentPlayer}</span>
-            </div>
-            <div className="dart-indicators horizontal">
-              {[0, 1, 2].map((i) => (
-                <div key={i} className={`dart-dot ${i < dartIndex ? 'dart-thrown' : i === dartIndex ? 'dart-active' : 'dart-pending'}`} />
-              ))}
-            </div>
-          </div>
-
-          {/* Dartboard */}
-          <div className="board-svg-wrap">
-            <GameBoard onHit={handleHit} />
-          </div>
-
-          {/* Last throw + next player + miss */}
-          <div className="board-info-bottom">
-            <div className="board-meta-row">
-              {lastTurn && (
-                <div className="board-last-turn">
+            <div className="board-top-left">
+              {lastTurn ? (
+                <>
                   <span className="board-info-label">Last — {lastTurn.playerName}</span>
                   <span className="board-last-darts">
                     {lastTurn.darts.map((d, i) => (
@@ -144,24 +162,51 @@ export default function CricketGameScreen() {
                       </span>
                     ))}
                   </span>
-                </div>
-              )}
-              {nextPlayer && (
-                <div className="board-next-player">
-                  <span className="board-info-label">Next</span>
-                  <span className="board-info-value">{nextPlayer}</span>
-                </div>
+                </>
+              ) : (
+                <span className="board-info-label board-info-label--faint">Last throw</span>
               )}
             </div>
-            <button className="miss-btn full-miss-btn" onClick={throwMiss}>Miss</button>
+            <div className="board-top-centre">
+              <span className="board-info-label">Throwing</span>
+              <span className="board-info-value throwing">{currentPlayer}</span>
+              <div className="dart-indicators horizontal">
+                {[0, 1, 2].map((i) => (
+                  <div key={i} className={`dart-dot ${i < dartIndex ? 'dart-thrown' : i === dartIndex ? 'dart-active' : 'dart-pending'}`} />
+                ))}
+              </div>
+            </div>
+            <div className="board-top-right">
+              {nextPlayer ? (
+                <>
+                  <span className="board-info-label">Next</span>
+                  <span className="board-info-value">{nextPlayer}</span>
+                </>
+              ) : (
+                <span className="board-info-label board-info-label--faint">Next</span>
+              )}
+            </div>
+          </div>
+
+          <div className="board-svg-wrap">
+            <GameBoard onHit={winner ? () => {} : handleHit} />
+          </div>
+
+          <div className="board-info-bottom">
+            {viewing ? (
+              <button className="win-exit-btn" onClick={() => navigate(ROUTES.HOME)}>Exit to Main Menu</button>
+            ) : (
+              <>
+                <button className="game-back-btn" onClick={() => navigate(ROUTES.CRICKET_SETUP, { state })}>← Setup</button>
+                <button className="miss-btn full-miss-btn" onClick={handleMiss}>Miss</button>
+                <button className="undo-btn" onClick={handleUndo} disabled={!canUndo}>Undo ↩</button>
+              </>
+            )}
           </div>
 
         </div>
 
-        {/* Right: Chalkboard scoring */}
         <div className="chalkboard">
-
-          {/* Team headers */}
           <div className="chalk-header">
             <span className={`chalk-team-name ${currentTeam === 'team1' ? 'chalk-active-team' : ''}`}>
               {team1Label}
@@ -174,7 +219,6 @@ export default function CricketGameScreen() {
 
           <div className="chalk-rule" />
 
-          {/* Number rows */}
           {CRICKET_NUMS.map((n) => {
             const closed = isClosed(cricket, n);
             const t1Open = isOpen(cricket, n, 'team1');
@@ -186,7 +230,7 @@ export default function CricketGameScreen() {
                 </div>
                 <div className="chalk-number-cell">
                   <span className={`chalk-number ${closed ? 'chalk-number-closed' : ''}`}>
-                    {n === 25 ? 'B' : n}
+                    {n === 25 ? 'Bull' : n}
                   </span>
                 </div>
                 <div className={`chalk-marks-cell ${t2Open ? 'chalk-open' : ''}`}>
@@ -198,7 +242,6 @@ export default function CricketGameScreen() {
 
           <div className="chalk-rule" />
 
-          {/* Scores */}
           <div className="chalk-scores">
             <span className="chalk-score-num">{cricket.score.team1}</span>
             <span className="chalk-score-divider">·</span>
@@ -208,6 +251,9 @@ export default function CricketGameScreen() {
         </div>
       </div>
 
+      {winner && !viewing && (
+        <WinOverlay winner={winner} onHome={() => navigate(ROUTES.HOME)} onView={() => setViewing(true)} />
+      )}
     </div>
   );
 }

@@ -1,5 +1,7 @@
 import { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useLocation } from 'react-router-dom';
+import { useGoto } from '../../../hooks/useGoto';
+import { useLastSetupStore } from '../../../store/lastSetupStore';
 import {
   DndContext,
   closestCenter,
@@ -17,6 +19,7 @@ import {
 import { CSS } from '@dnd-kit/utilities';
 import { useProfilesStore } from '../../../store/profilesStore';
 import StepToggle from '../../../components/shared/StepToggle';
+import PlayerPicker from '../../../components/shared/PlayerPicker';
 import { ROUTES } from '../../../constants';
 import type { Profile } from '../../../types';
 
@@ -65,16 +68,18 @@ function TeamPlayer({
 }
 
 export default function CricketSetupScreen() {
-  const navigate = useNavigate();
+  const goto = useGoto();
+  const saveSetup = useLastSetupStore((s) => s.save);
+  const { state } = useLocation();
   const { profiles, activeProfileId } = useProfilesStore();
   const activeProfile = profiles.find((p) => p.id === activeProfileId);
 
-  const [mode, setMode] = useState<Mode>('players');
-  const [difficulty, setDifficulty] = useState(15);
-  const [legs, setLegs] = useState<Legs>(1);
-  const [practice, setPractice] = useState(false);
-  const [team1, setTeam1] = useState<Profile[]>(activeProfile ? [activeProfile] : []);
-  const [team2, setTeam2] = useState<Profile[]>([]);
+  const [mode, setMode] = useState<Mode>(state?.mode ?? 'players');
+  const [difficulty, setDifficulty] = useState(state?.difficulty ?? 15);
+  const [legs, setLegs] = useState<Legs>(state?.legs ?? 1);
+  const [practice, setPractice] = useState(state?.practice ?? false);
+  const [team1, setTeam1] = useState<Profile[]>(state?.team1 ?? (activeProfile ? [activeProfile] : []));
+  const [team2, setTeam2] = useState<Profile[]>(state?.team2 ?? []);
 
   const sensors = useSensors(useSensor(PointerSensor));
 
@@ -200,20 +205,12 @@ export default function CricketSetupScreen() {
                   </SortableContext>
 
                   {canAddToTeam(teamNum) && (
-                    <div className="add-player-dropdown">
-                      <select
-                        value=""
-                        onChange={(e) => {
-                          const profile = available.find((p) => p.id === e.target.value);
-                          if (profile) addToTeam(teamNum, profile);
-                        }}
-                      >
-                        <option value="" disabled>+ Add Player</option>
-                        {available.map((p) => (
-                          <option key={p.id} value={p.id}>{p.name}</option>
-                        ))}
-                      </select>
-                    </div>
+                    <PlayerPicker
+                      profiles={available}
+                      onSelect={(p) => addToTeam(teamNum, p)}
+                      placeholder="Search to add…"
+                      requireAuth={!practice}
+                    />
                   )}
 
                   {!canAddToTeam(teamNum) && pendingTeam === teamNum && (
@@ -269,17 +266,21 @@ export default function CricketSetupScreen() {
           </div>
           <button
             className={`toggle-btn ${practice ? 'toggle-on' : ''}`}
-            onClick={() => setPractice((v) => !v)}
+            onClick={() => setPractice((v: boolean) => !v)}
           >
             {practice ? 'On' : 'Off'}
           </button>
         </div>
       </div>
 
-      <button disabled={!canStart} onClick={() => navigate(ROUTES.CRICKET_GAME, { state: { mode, team1, team2, difficulty, legs, practice } })}>
+      <button disabled={!canStart} onClick={() => {
+        const gs = { mode, team1, team2, difficulty, legs, practice };
+        saveSetup({ route: ROUTES.CRICKET_SETUP, gameState: gs });
+        goto(ROUTES.CRICKET_GAME, { state: gs }, 'long');
+      }}>
         Start Game
       </button>
-      <button className="secondary" onClick={() => navigate(ROUTES.GAMEMODES)}>
+      <button className="secondary" onClick={() => goto(state?._from === 'hub' ? ROUTES.HOME : ROUTES.PLAY)}>
         Back
       </button>
     </div>

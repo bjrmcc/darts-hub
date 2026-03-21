@@ -1,32 +1,59 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useProfilesStore } from '../../store/profilesStore';
+import { hashPassword } from '../../utils/hashPassword';
 import { ROUTES } from '../../constants';
 
 export default function CreateProfileScreen() {
   const navigate = useNavigate();
   const { addProfile, setActiveProfile } = useProfilesStore();
-  const [name, setName] = useState('');
 
-  const handleCreate = () => {
-    if (!name.trim()) return;
+  const [name, setName] = useState('');
+  const [password, setPassword] = useState('');
+  const [confirm, setConfirm] = useState('');
+  const [error, setError] = useState('');
+  const [loading, setLoading] = useState(false);
+
+  async function handleCreate() {
+    const trimmed = name.trim();
+    if (!trimmed) { setError('Please enter a username.'); return; }
+    if (!password) { setError('Please enter a password.'); return; }
+    if (password !== confirm) { setError('Passwords do not match.'); return; }
+    setLoading(true);
+    setError('');
+    const hash = await hashPassword(password);
     const id = crypto.randomUUID();
-    addProfile(name.trim(), id);
+    addProfile(trimmed, hash, id);
     setActiveProfile(id);
     navigate(ROUTES.HOME);
-  };
+  }
 
   return (
     <div className="page">
       <h2>Create Profile</h2>
       <input
-        placeholder="Enter your name"
+        placeholder="Username"
         value={name}
-        onChange={(e) => setName(e.target.value)}
-        onKeyDown={(e) => e.key === 'Enter' && handleCreate()}
+        onChange={(e) => { setName(e.target.value); setError(''); }}
         autoFocus
       />
-      <button onClick={handleCreate}>Create</button>
+      <input
+        type="password"
+        placeholder="Password"
+        value={password}
+        onChange={(e) => { setPassword(e.target.value); setError(''); }}
+      />
+      <input
+        type="password"
+        placeholder="Confirm password"
+        value={confirm}
+        onChange={(e) => { setConfirm(e.target.value); setError(''); }}
+        onKeyDown={(e) => e.key === 'Enter' && handleCreate()}
+      />
+      {error && <p className="profile-error">{error}</p>}
+      <button onClick={handleCreate} disabled={loading}>
+        {loading ? 'Creating…' : 'Create'}
+      </button>
       <button className="secondary" onClick={() => navigate(ROUTES.PROFILES)}>Back</button>
     </div>
   );

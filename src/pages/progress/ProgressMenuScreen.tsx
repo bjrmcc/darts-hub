@@ -1,15 +1,15 @@
 import { useGoto } from '../../hooks/useGoto';
 import { ROUTES } from '../../constants';
 
-export default function StatisticsScreen() {
+export default function ProgressMenuScreen() {
   const goto = useGoto();
 
   return (
     <div className="page">
-      <h2>Statistics</h2>
+      <h2>Progress</h2>
       <nav className="home-nav">
-        <button onClick={() => goto(ROUTES.STATISTICS_PERSONAL)}>Personal Statistics</button>
-        <button disabled style={{ opacity: 0.4, cursor: 'not-allowed' }}>Leaderboards</button>
+        <button onClick={() => goto(ROUTES.PROGRESS_PERSONAL)}>Personal Progress</button>
+        <button onClick={() => goto(ROUTES.PROGRESS_GENERAL)}>General Progress</button>
       </nav>
       <button className="secondary" onClick={() => goto(ROUTES.STATS_HOME)}>Back</button>
     </div>
