@@ -62,12 +62,14 @@ import ATCStatsScreen from './pages/statistics/ATCStatsScreen';
 import StatsDetailScreen from './pages/statistics/StatsDetailScreen';
 import AdminScreen from './pages/admin/AdminScreen';
 import SettingsScreen from './pages/settings/SettingsScreen';
+import RealtimeDebugPanel from './components/debug/RealtimeDebugPanel';
 
 export default function App() {
   return (
     <BrowserRouter>
       <DataBootstrap />
       <Header />
+      {import.meta.env.DEV && <RealtimeDebugPanel />}
       <TransitionOverlay />
       <Routes>
         {/* Public — no profile needed */}

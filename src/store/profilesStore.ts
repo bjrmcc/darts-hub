@@ -1,7 +1,8 @@
 import { create } from 'zustand';
 import { supabase } from '../lib/supabase';
-import type { RealtimeChannel } from '@supabase/supabase-js';
+import type { RealtimeChannel, RealtimePostgresChangesPayload } from '@supabase/supabase-js';
 import type { Profile } from '../types';
+import { logRT } from '../lib/realtimeLogger';
 
 // Module-level refs prevent duplicate channels if subscribe() is called more than once
 let profilesChannel: RealtimeChannel | null = null;
@@ -119,7 +120,10 @@ export const useProfilesStore = create<ProfilesState>((set, get) => ({
     }
     profilesChannel = supabase
       .channel('profiles-sync')
-      .on('postgres_changes', { event: '*', schema: 'public', table: 'profiles' }, () => {
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'profiles' }, (payload: RealtimePostgresChangesPayload<Record<string, unknown>>) => {
+        const row = (payload.new ?? payload.old ?? {}) as Record<string, unknown>;
+        const detail = `${payload.eventType} — name: ${row.name ?? '?'}`;
+        logRT('profiles', payload.eventType as 'INSERT' | 'UPDATE' | 'DELETE', detail);
         // Debounce: coalesce rapid events (e.g. bulk admin ops) into one fetch
         if (profilesFetchDebounce) clearTimeout(profilesFetchDebounce);
         profilesFetchDebounce = setTimeout(() => {

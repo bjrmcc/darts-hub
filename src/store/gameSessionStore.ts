@@ -1,6 +1,7 @@
 import { create } from 'zustand';
 import { supabase } from '../lib/supabase';
 import type { RealtimeChannel } from '@supabase/supabase-js';
+import { logRT } from '../lib/realtimeLogger';
 
 // Tracks open session-watcher channels by session ID to prevent duplicates
 const sessionChannels = new Map<string, RealtimeChannel>();
@@ -36,7 +37,9 @@ export const useGameSessionStore = create<GameSessionState>((set, get) => ({
       .select('session_token')
       .single();
     if (error) console.error('session start:', error);
-    set({ sessionId: id, sessionToken: (data?.session_token as string) ?? null, version: 0 });
+    const token = (data?.session_token as string) ?? null;
+    set({ sessionId: id, sessionToken: token, version: 0 });
+    logRT('game_sessions', 'session_start', `mode: ${gameMode}, players: ${playerIds.length}, id: ${id.slice(0, 8)}…`, 'local');
     return id;
   },
 
@@ -52,14 +55,21 @@ export const useGameSessionStore = create<GameSessionState>((set, get) => ({
       })
       .then(({ data, error }) => {
         if (error) { console.error('session push:', error); return; }
-        if (data === true) set((s) => ({ version: s.version + 1 }));
-        // data === false → version conflict (another client wrote first); safe to ignore
+        if (data === true) {
+          const nextVersion = version + 1;
+          set((s) => ({ version: s.version + 1 }));
+          logRT('game_sessions', 'session_push', `id: ${sessionId.slice(0, 8)}…, v${version}→v${nextVersion}`, 'local');
+        } else {
+          // data === false → version conflict (another client wrote first); safe to ignore
+          logRT('game_sessions', 'session_push', `version conflict on id: ${sessionId.slice(0, 8)}… (v${version} rejected)`, 'local');
+        }
       });
   },
 
   endSession: () => {
     const { sessionId } = get();
     if (!sessionId) return;
+    logRT('game_sessions', 'session_end', `id: ${sessionId.slice(0, 8)}…`, 'local');
     supabase.from('game_sessions').delete().eq('id', sessionId)
       .then(({ error }) => { if (error) console.error('session end:', error); });
     set({ sessionId: null, sessionToken: null, version: 0 });
@@ -70,6 +80,8 @@ export const useGameSessionStore = create<GameSessionState>((set, get) => ({
     const existing = sessionChannels.get(id);
     if (existing) { supabase.removeChannel(existing); sessionChannels.delete(id); }
 
+    logRT('game_sessions', 'session_watch', `watching id: ${id.slice(0, 8)}…`, 'local');
+
     const channel = supabase
       .channel(`session-${id}`)
       .on(
@@ -77,6 +89,7 @@ export const useGameSessionStore = create<GameSessionState>((set, get) => ({
         { event: 'UPDATE', schema: 'public', table: 'game_sessions', filter: `id=eq.${id}` },
         (payload) => {
           const row = payload.new as Record<string, unknown>;
+          logRT('game_sessions', 'UPDATE', `remote update on id: ${id.slice(0, 8)}…, v${row.version ?? '?'}`);
           onUpdate(row.state as Record<string, unknown>);
         }
       )

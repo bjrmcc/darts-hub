@@ -1,7 +1,8 @@
 import { create } from 'zustand';
 import { supabase } from '../lib/supabase';
-import type { RealtimeChannel } from '@supabase/supabase-js';
+import type { RealtimeChannel, RealtimePostgresChangesPayload } from '@supabase/supabase-js';
 import type { GameResult, Profile } from '../types';
+import { logRT } from '../lib/realtimeLogger';
 
 // Module-level refs prevent duplicate channels if subscribe() is called more than once
 let resultsChannel: RealtimeChannel | null = null;
@@ -128,7 +129,10 @@ export const useStatisticsStore = create<StatisticsState>((set, get) => ({
     }
     resultsChannel = supabase
       .channel('results-sync')
-      .on('postgres_changes', { event: '*', schema: 'public', table: 'game_results' }, () => {
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'game_results' }, (payload: RealtimePostgresChangesPayload<Record<string, unknown>>) => {
+        const row = (payload.new ?? payload.old ?? {}) as Record<string, unknown>;
+        const detail = `${payload.eventType} — mode: ${row.game_mode ?? '?'}`;
+        logRT('game_results', payload.eventType as 'INSERT' | 'UPDATE' | 'DELETE', detail);
         // Debounce: coalesce rapid events (e.g. data repair updating several rows) into one fetch
         if (resultsFetchDebounce) clearTimeout(resultsFetchDebounce);
         resultsFetchDebounce = setTimeout(() => {

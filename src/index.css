@@ -6841,6 +6841,106 @@ button.secondary:hover {
 .ldb-overall-val--dim { color: #444; font-size: 0.72rem; }
 
 /* ═══════════════════════════════════════════════════════════════
+   REALTIME DEBUG PANEL (dev only — classes not referenced in prod)
+   ═══════════════════════════════════════════════════════════════ */
+
+.rtdbg-root {
+  position: fixed;
+  bottom: 1rem;
+  right: 1rem;
+  z-index: 9999;
+  font-family: monospace;
+}
+
+.rtdbg-toggle {
+  background: #1a1a1a;
+  border: 1px solid #444;
+  color: #aaa;
+  font-size: 0.7rem;
+  font-weight: 700;
+  padding: 0.3rem 0.6rem;
+  border-radius: 4px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 0.3rem;
+  width: auto;
+  max-width: none;
+  letter-spacing: 0.05em;
+  opacity: 0.6;
+}
+.rtdbg-toggle:hover { opacity: 1; border-color: #888; }
+
+.rtdbg-badge {
+  background: #e05555;
+  color: #fff;
+  font-size: 0.6rem;
+  border-radius: 8px;
+  padding: 0 0.3rem;
+  line-height: 1.4;
+}
+
+.rtdbg-panel {
+  width: min(420px, 92vw);
+  background: #0d0d0d;
+  border: 1px solid #333;
+  border-radius: 6px;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  box-shadow: 0 8px 32px rgba(0,0,0,0.7);
+  max-height: 60vh;
+}
+
+.rtdbg-header {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.4rem 0.6rem;
+  background: #1a1a1a;
+  border-bottom: 1px solid #2a2a2a;
+  flex-shrink: 0;
+}
+.rtdbg-title { font-size: 0.65rem; font-weight: 700; color: #aaa; flex: 1; letter-spacing: 0.06em; text-transform: uppercase; }
+.rtdbg-count { font-size: 0.6rem; color: #555; }
+.rtdbg-clear, .rtdbg-close {
+  background: none;
+  border: 1px solid #333;
+  color: #666;
+  font-size: 0.6rem;
+  padding: 0.15rem 0.4rem;
+  border-radius: 3px;
+  cursor: pointer;
+  width: auto;
+  max-width: none;
+}
+.rtdbg-clear:hover, .rtdbg-close:hover { color: #aaa; border-color: #555; }
+
+.rtdbg-list {
+  overflow-y: auto;
+  flex: 1;
+}
+.rtdbg-empty { font-size: 0.65rem; color: #444; padding: 0.75rem; text-align: center; }
+
+.rtdbg-row {
+  display: grid;
+  grid-template-columns: 4.5rem 1rem 4.5rem 5.5rem 1fr;
+  gap: 0.3rem;
+  align-items: baseline;
+  padding: 0.2rem 0.6rem;
+  border-bottom: 1px solid #161616;
+  font-size: 0.62rem;
+}
+.rtdbg-row--local { background: rgba(255,255,255,0.015); }
+.rtdbg-row:first-child { border-top: none; }
+
+.rtdbg-time   { color: #444; }
+.rtdbg-arrow  { color: #555; font-size: 0.55rem; text-align: center; }
+.rtdbg-table  { font-weight: 700; }
+.rtdbg-type   { }
+.rtdbg-detail { color: #666; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+
+/* ═══════════════════════════════════════════════════════════════
    MOBILE & TOUCH — responsive overrides
    All changes below are additive; desktop layout is unchanged.
    ═══════════════════════════════════════════════════════════════ */
