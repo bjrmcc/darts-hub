@@ -6,7 +6,7 @@ import { ROUTES } from '../../constants';
 
 export default function CreateProfileScreen() {
   const navigate = useNavigate();
-  const { addProfile, setActiveProfile } = useProfilesStore();
+  const { addProfile, setActiveProfile, profiles } = useProfilesStore();
 
   const [name, setName] = useState('');
   const [password, setPassword] = useState('');
@@ -17,6 +17,10 @@ export default function CreateProfileScreen() {
   async function handleCreate() {
     const trimmed = name.trim();
     if (!trimmed) { setError('Please enter a username.'); return; }
+    if (profiles.some((p) => p.name.toLowerCase() === trimmed.toLowerCase())) {
+      setError('That username is already taken. Please sign in instead.');
+      return;
+    }
     if (!password) { setError('Please enter a password.'); return; }
     if (password !== confirm) { setError('Passwords do not match.'); return; }
     setLoading(true);

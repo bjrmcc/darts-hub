@@ -1,6 +1,6 @@
 import { create } from 'zustand';
 import { supabase } from '../lib/supabase';
-import type { GameResult } from '../types';
+import type { GameResult, Profile } from '../types';
 
 interface StatisticsState {
   history: GameResult[];
@@ -10,6 +10,7 @@ interface StatisticsState {
   removeResult: (id: string) => void;
   clearHistory: () => void;
   resetProfileGameMode: (profileId: string, gameMode: string) => void;
+  repairOrphanedRecords: (profiles: Profile[]) => Promise<number>;
   subscribe: () => () => void;
 }
 
@@ -80,6 +81,38 @@ export const useStatisticsStore = create<StatisticsState>((set, get) => ({
       supabase.from('game_results').delete().in('id', toRemove)
         .then(({ error }) => { if (error) console.error('game_results resetMode:', error); });
     }
+  },
+
+  repairOrphanedRecords: async (profiles) => {
+    const profileIds = new Set(profiles.map((p) => p.id));
+    const nameToId = new Map(profiles.map((p) => [p.name, p.id]));
+    const orphaned = get().history.filter((r) => r.players.some((id) => !profileIds.has(id)));
+    let fixed = 0;
+    for (const result of orphaned) {
+      const idMap: Record<string, string> = {};
+      for (const ps of result.stats.players) {
+        if (!profileIds.has(ps.playerId)) {
+          const correctId = nameToId.get(ps.playerName);
+          if (correctId) idMap[ps.playerId] = correctId;
+        }
+      }
+      if (Object.keys(idMap).length === 0) continue;
+      const fixedPlayers = result.players.map((id) => idMap[id] ?? id);
+      const fixedWinnerId = result.winnerId ? (idMap[result.winnerId] ?? result.winnerId) : result.winnerId;
+      let statsStr = JSON.stringify(result.stats);
+      for (const [oldId, newId] of Object.entries(idMap)) {
+        statsStr = statsStr.split(oldId).join(newId);
+      }
+      const fixedStats = JSON.parse(statsStr);
+      await supabase.from('game_results').update({
+        players: fixedPlayers,
+        winner_id: fixedWinnerId ?? null,
+        stats: fixedStats,
+      }).eq('id', result.id);
+      fixed++;
+    }
+    if (fixed > 0) await get().fetch();
+    return fixed;
   },
 
   subscribe: () => {

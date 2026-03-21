@@ -4,7 +4,7 @@ import { ROUTES } from '../../constants';
 import { useProfilesStore } from '../../store/profilesStore';
 import { useStatisticsStore } from '../../store/statisticsStore';
 import { hashPassword } from '../../utils/hashPassword';
-import type { GameStats } from '../../types';
+import type { GameStats, Profile } from '../../types';
 
 /* ── Helpers ─────────────────────────────────────────────── */
 
@@ -22,6 +22,44 @@ function fmtDate(ts: number): string {
 
 function initials(name: string): string {
   return name.split(' ').map(w => w[0]).join('').toUpperCase().slice(0, 2);
+}
+
+/* ── Data Repair ──────────────────────────────────────────── */
+
+function DataRepairSection({ profiles }: { profiles: Profile[] }) {
+  const { history, repairOrphanedRecords } = useStatisticsStore();
+  const profileIds = new Set(profiles.map((p) => p.id));
+  const orphanCount = history.filter((r) => r.players.some((id) => !profileIds.has(id))).length;
+  const [repairing, setRepairing] = useState(false);
+  const [result, setResult] = useState<number | null>(null);
+
+  async function handleRepair() {
+    setRepairing(true);
+    setResult(null);
+    const fixed = await repairOrphanedRecords(profiles);
+    setRepairing(false);
+    setResult(fixed);
+  }
+
+  if (orphanCount === 0 && result === null) return null;
+
+  return (
+    <div className="adm-repair-banner">
+      <div className="adm-repair-info">
+        <span className="adm-repair-title">Data Repair</span>
+        {result !== null ? (
+          <span className="adm-repair-msg adm-repair-msg--ok">Fixed {result} record{result !== 1 ? 's' : ''} ✓</span>
+        ) : (
+          <span className="adm-repair-msg">{orphanCount} game record{orphanCount !== 1 ? 's' : ''} with unrecognised player IDs</span>
+        )}
+      </div>
+      {result === null && (
+        <button className="adm-repair-btn" onClick={handleRepair} disabled={repairing}>
+          {repairing ? 'Repairing…' : 'Auto-fix'}
+        </button>
+      )}
+    </div>
+  );
 }
 
 /* ── Profiles Tab ─────────────────────────────────────────── */
@@ -250,6 +288,7 @@ export default function AdminScreen() {
 
       {/* Content */}
       <div className="adm-body">
+        <DataRepairSection profiles={profiles} />
         {tab === 'profiles' && <ProfilesTab />}
         {tab === 'games'    && <GamesTab />}
       </div>

@@ -4152,6 +4152,37 @@ button.secondary:hover {
   gap: 0.5rem;
 }
 
+/* ── Data repair banner ── */
+
+.adm-repair-banner {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+  padding: 0.6rem 0.8rem;
+  margin-bottom: 0.75rem;
+  background: rgba(200, 80, 0, 0.08);
+  border: 1px solid rgba(200, 80, 0, 0.3);
+  border-radius: 6px;
+}
+.adm-repair-info { display: flex; flex-direction: column; gap: 0.15rem; }
+.adm-repair-title { font-size: 0.7rem; font-weight: 700; color: #c85000; text-transform: uppercase; letter-spacing: 0.05em; }
+.adm-repair-msg { font-size: 0.72rem; color: #aaa; }
+.adm-repair-msg--ok { color: #4caf50; }
+.adm-repair-btn {
+  padding: 0.3rem 0.7rem;
+  background: rgba(200, 80, 0, 0.15);
+  border: 1px solid rgba(200, 80, 0, 0.4);
+  border-radius: 4px;
+  color: #c85000;
+  font-size: 0.72rem;
+  font-weight: 600;
+  cursor: pointer;
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+.adm-repair-btn:hover { background: rgba(200, 80, 0, 0.25); }
+
 /* ── Profile cards ── */
 
 .adm-list {
