@@ -4154,6 +4154,37 @@ button.secondary:hover {
   gap: 0.5rem;
 }
 
+/* ── Export / backup banner ── */
+
+.adm-export-banner {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+  padding: 0.6rem 0.8rem;
+  background: rgba(200, 160, 32, 0.05);
+  border: 1px solid rgba(200, 160, 32, 0.2);
+  border-radius: 6px;
+}
+.adm-export-info { display: flex; flex-direction: column; gap: 0.15rem; }
+.adm-export-title { font-size: 0.7rem; font-weight: 700; color: #c8a020; text-transform: uppercase; letter-spacing: 0.05em; }
+.adm-export-meta { font-size: 0.7rem; color: #6b5010; }
+.adm-export-btn {
+  padding: 0.3rem 0.8rem;
+  background: rgba(200, 160, 32, 0.1);
+  border: 1px solid rgba(200, 160, 32, 0.3);
+  border-radius: 4px;
+  color: #c8a020;
+  font-size: 0.72rem;
+  font-weight: 600;
+  cursor: pointer;
+  white-space: nowrap;
+  flex-shrink: 0;
+  width: auto;
+  max-width: none;
+}
+.adm-export-btn:hover { background: rgba(200, 160, 32, 0.18); }
+
 /* ── Data repair banner ── */
 
 .adm-repair-banner {

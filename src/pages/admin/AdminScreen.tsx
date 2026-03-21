@@ -24,6 +24,44 @@ function initials(name: string): string {
   return name.split(' ').map(w => w[0]).join('').toUpperCase().slice(0, 2);
 }
 
+/* ── Export / Backup ──────────────────────────────────────── */
+
+function exportBackup(profileCount: number, gameCount: number) {
+  const { profiles } = useProfilesStore.getState();
+  const { history } = useStatisticsStore.getState();
+  const payload = {
+    exportedAt: new Date().toISOString(),
+    version: 1,
+    profiles,
+    gameResults: history,
+  };
+  const blob = new Blob([JSON.stringify(payload, null, 2)], { type: 'application/json' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = `darts-hub-backup-${new Date().toISOString().slice(0, 10)}.json`;
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+  URL.revokeObjectURL(url);
+}
+
+function ExportSection({ profileCount, gameCount }: { profileCount: number; gameCount: number }) {
+  return (
+    <div className="adm-export-banner">
+      <div className="adm-export-info">
+        <span className="adm-export-title">Backup</span>
+        <span className="adm-export-meta">
+          {profileCount} profile{profileCount !== 1 ? 's' : ''} · {gameCount} game{gameCount !== 1 ? 's' : ''}
+        </span>
+      </div>
+      <button className="adm-export-btn" onClick={() => exportBackup(profileCount, gameCount)}>
+        Export JSON
+      </button>
+    </div>
+  );
+}
+
 /* ── Data Repair ──────────────────────────────────────────── */
 
 function DataRepairSection({ profiles }: { profiles: Profile[] }) {
@@ -288,6 +326,7 @@ export default function AdminScreen() {
 
       {/* Content */}
       <div className="adm-body">
+        <ExportSection profileCount={profiles.length} gameCount={history.length} />
         <DataRepairSection profiles={profiles} />
         {tab === 'profiles' && <ProfilesTab />}
         {tab === 'games'    && <GamesTab />}
