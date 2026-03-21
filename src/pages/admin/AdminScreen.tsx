@@ -26,7 +26,7 @@ function initials(name: string): string {
 
 /* ── Export / Backup ──────────────────────────────────────── */
 
-function exportBackup(profileCount: number, gameCount: number) {
+function exportBackup() {
   const { profiles } = useProfilesStore.getState();
   const { history } = useStatisticsStore.getState();
   const payload = {
@@ -55,7 +55,7 @@ function ExportSection({ profileCount, gameCount }: { profileCount: number; game
           {profileCount} profile{profileCount !== 1 ? 's' : ''} · {gameCount} game{gameCount !== 1 ? 's' : ''}
         </span>
       </div>
-      <button className="adm-export-btn" onClick={() => exportBackup(profileCount, gameCount)}>
+      <button className="adm-export-btn" onClick={exportBackup}>
         Export JSON
       </button>
     </div>
