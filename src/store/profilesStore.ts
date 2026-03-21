@@ -1,6 +1,11 @@
 import { create } from 'zustand';
 import { supabase } from '../lib/supabase';
+import type { RealtimeChannel } from '@supabase/supabase-js';
 import type { Profile } from '../types';
+
+// Module-level refs prevent duplicate channels if subscribe() is called more than once
+let profilesChannel: RealtimeChannel | null = null;
+let profilesFetchDebounce: ReturnType<typeof setTimeout> | null = null;
 
 interface ProfilesState {
   profiles: Profile[];
@@ -107,13 +112,26 @@ export const useProfilesStore = create<ProfilesState>((set, get) => ({
   },
 
   subscribe: () => {
-    const channel = supabase
+    // Tear down any existing channel before creating a new one
+    if (profilesChannel) {
+      supabase.removeChannel(profilesChannel);
+      profilesChannel = null;
+    }
+    profilesChannel = supabase
       .channel('profiles-sync')
       .on('postgres_changes', { event: '*', schema: 'public', table: 'profiles' }, () => {
-        get().fetch();
+        // Debounce: coalesce rapid events (e.g. bulk admin ops) into one fetch
+        if (profilesFetchDebounce) clearTimeout(profilesFetchDebounce);
+        profilesFetchDebounce = setTimeout(() => {
+          get().fetch();
+          profilesFetchDebounce = null;
+        }, 300);
       })
       .subscribe();
-    return () => { supabase.removeChannel(channel); };
+    return () => {
+      if (profilesFetchDebounce) { clearTimeout(profilesFetchDebounce); profilesFetchDebounce = null; }
+      if (profilesChannel) { supabase.removeChannel(profilesChannel); profilesChannel = null; }
+    };
   },
 }));
 

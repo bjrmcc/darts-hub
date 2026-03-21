@@ -1,6 +1,11 @@
 import { create } from 'zustand';
 import { supabase } from '../lib/supabase';
+import type { RealtimeChannel } from '@supabase/supabase-js';
 import type { GameResult, Profile } from '../types';
+
+// Module-level refs prevent duplicate channels if subscribe() is called more than once
+let resultsChannel: RealtimeChannel | null = null;
+let resultsFetchDebounce: ReturnType<typeof setTimeout> | null = null;
 
 interface StatisticsState {
   history: GameResult[];
@@ -116,12 +121,25 @@ export const useStatisticsStore = create<StatisticsState>((set, get) => ({
   },
 
   subscribe: () => {
-    const channel = supabase
+    // Tear down any existing channel before creating a new one
+    if (resultsChannel) {
+      supabase.removeChannel(resultsChannel);
+      resultsChannel = null;
+    }
+    resultsChannel = supabase
       .channel('results-sync')
       .on('postgres_changes', { event: '*', schema: 'public', table: 'game_results' }, () => {
-        get().fetch();
+        // Debounce: coalesce rapid events (e.g. data repair updating several rows) into one fetch
+        if (resultsFetchDebounce) clearTimeout(resultsFetchDebounce);
+        resultsFetchDebounce = setTimeout(() => {
+          get().fetch();
+          resultsFetchDebounce = null;
+        }, 300);
       })
       .subscribe();
-    return () => { supabase.removeChannel(channel); };
+    return () => {
+      if (resultsFetchDebounce) { clearTimeout(resultsFetchDebounce); resultsFetchDebounce = null; }
+      if (resultsChannel) { supabase.removeChannel(resultsChannel); resultsChannel = null; }
+    };
   },
 }));

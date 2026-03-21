@@ -1,5 +1,9 @@
 import { create } from 'zustand';
 import { supabase } from '../lib/supabase';
+import type { RealtimeChannel } from '@supabase/supabase-js';
+
+// Tracks open session-watcher channels by session ID to prevent duplicates
+const sessionChannels = new Map<string, RealtimeChannel>();
 
 export interface LiveSession {
   id: string;
@@ -62,6 +66,10 @@ export const useGameSessionStore = create<GameSessionState>((set, get) => ({
   },
 
   subscribeToSession: (id, onUpdate) => {
+    // Remove any existing watcher for this session ID before opening a new one
+    const existing = sessionChannels.get(id);
+    if (existing) { supabase.removeChannel(existing); sessionChannels.delete(id); }
+
     const channel = supabase
       .channel(`session-${id}`)
       .on(
@@ -73,6 +81,11 @@ export const useGameSessionStore = create<GameSessionState>((set, get) => ({
         }
       )
       .subscribe();
-    return () => { supabase.removeChannel(channel); };
+
+    sessionChannels.set(id, channel);
+    return () => {
+      supabase.removeChannel(channel);
+      sessionChannels.delete(id);
+    };
   },
 }));
