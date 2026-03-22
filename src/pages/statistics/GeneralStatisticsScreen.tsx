@@ -2,6 +2,7 @@ import { useStatisticsStore } from '../../store/statisticsStore';
 import { useProfilesStore } from '../../store/profilesStore';
 import { useGoto } from '../../hooks/useGoto';
 import { ROUTES } from '../../constants';
+import DataLoading from '../../components/shared/DataLoading';
 import type { GameStats, GameResult } from '../../types';
 import type { Profile } from '../../types';
 
@@ -147,6 +148,7 @@ function ModeLdbCard({ title, accent, rows, onClick }: {
 export default function GeneralStatisticsScreen() {
   const goto = useGoto();
   const history = useStatisticsStore(s => s.history);
+  const statsLoaded = useStatisticsStore(s => s.loaded);
   const profiles = useProfilesStore(s => s.profiles);
 
   const { mainList, x01List, crkList, atcList, ftList } = computeAll(history, profiles);
@@ -162,70 +164,76 @@ export default function GeneralStatisticsScreen() {
         <span className="ss-screen-title">Leaderboards</span>
       </div>
 
-      {/* ── Overall leaderboard preview ── */}
-      <button
-        className="ldb-mode-card ldb-mode-card--overall ldb-mode-card--btn ldb-overall-preview"
-        onClick={() => goto(ROUTES.STATS_DETAIL, { state: { leaderboard: true } })}
-      >
-        <div className="ldb-mode-title ldb-mode-title--overall">
-          Overall Rankings
-          <span className="ldb-overall-preview-tap">Full stats →</span>
-        </div>
-        <div className="ldb-overall-preview-head">
-          <span /><span />
-          <span>180s</span>
-          <span>MPV</span>
-          <span>Darts</span>
-        </div>
-        <div className="ldb-mode-rows">
-          {mainList.length === 0 ? (
-            <div className="ldb-empty">No games recorded yet</div>
-          ) : (
-            mainList.map((e, i) => (
-              <div key={e.id} className="ldb-overall-preview-row">
-                <RankCell i={i} />
-                <span className="ldb-mode-name">{e.name}</span>
-                <span className="ldb-mode-val ldb-overall-val--180">{e.maxes || '—'}</span>
-                <span className="ldb-mode-val ldb-overall-val--mpv">{f2(e.mpv)}</span>
-                <span className="ldb-mode-val ldb-overall-val--dim">
-                  {e.darts > 0 ? e.darts.toLocaleString() : '—'}
-                </span>
-              </div>
-            ))
-          )}
-        </div>
-      </button>
+      {!statsLoaded ? (
+        <DataLoading />
+      ) : (
+        <>
+          {/* ── Overall leaderboard preview ── */}
+          <button
+            className="ldb-mode-card ldb-mode-card--overall ldb-mode-card--btn ldb-overall-preview"
+            onClick={() => goto(ROUTES.STATS_DETAIL, { state: { leaderboard: true } })}
+          >
+            <div className="ldb-mode-title ldb-mode-title--overall">
+              Overall Rankings
+              <span className="ldb-overall-preview-tap">Full stats →</span>
+            </div>
+            <div className="ldb-overall-preview-head">
+              <span /><span />
+              <span>180s</span>
+              <span>MPV</span>
+              <span>Darts</span>
+            </div>
+            <div className="ldb-mode-rows">
+              {mainList.length === 0 ? (
+                <div className="ldb-empty">No games recorded yet</div>
+              ) : (
+                mainList.map((e, i) => (
+                  <div key={e.id} className="ldb-overall-preview-row">
+                    <RankCell i={i} />
+                    <span className="ldb-mode-name">{e.name}</span>
+                    <span className="ldb-mode-val ldb-overall-val--180">{e.maxes || '—'}</span>
+                    <span className="ldb-mode-val ldb-overall-val--mpv">{f2(e.mpv)}</span>
+                    <span className="ldb-mode-val ldb-overall-val--dim">
+                      {e.darts > 0 ? e.darts.toLocaleString() : '—'}
+                    </span>
+                  </div>
+                ))
+              )}
+            </div>
+          </button>
 
-      {/* ── Mode leaderboards ── */}
-      <div className="ldb-modes-wrap">
-        <div className="ss-section-title" style={{ padding: '0 0.85rem' }}>By Game Mode</div>
-        <div className="ldb-mode-grid">
-          <ModeLdbCard
-            title="X01 · 3-Dart Avg"
-            accent="x01"
-            rows={x01List.map(e => ({ name: e.name, val: f2(e.avg), sub: `${e.legs}L` }))}
-            onClick={() => goto(ROUTES.STATS_X01, { state: { leaderboard: true } })}
-          />
-          <ModeLdbCard
-            title="Cricket · MPV"
-            accent="crk"
-            rows={crkList.map(e => ({ name: e.name, val: f2(e.mpv), sub: `${e.games}G` }))}
-            onClick={() => goto(ROUTES.STATS_CRICKET, { state: { leaderboard: true } })}
-          />
-          <ModeLdbCard
-            title="ATC · Visit Avg"
-            accent="atc"
-            rows={atcList.map(e => ({ name: e.name, val: f1(e.visitAvg), sub: `${e.games}G` }))}
-            onClick={() => goto(ROUTES.STATS_ATC, { state: { leaderboard: true } })}
-          />
-          <ModeLdbCard
-            title="First To · MPV"
-            accent="ft"
-            rows={ftList.map(e => ({ name: e.name, val: f2(e.mpv), sub: `${e.games}G` }))}
-            onClick={() => goto(ROUTES.STATS_FIRST_TO, { state: { leaderboard: true } })}
-          />
-        </div>
-      </div>
+          {/* ── Mode leaderboards ── */}
+          <div className="ldb-modes-wrap">
+            <div className="ss-section-title" style={{ padding: '0 0.85rem' }}>By Game Mode</div>
+            <div className="ldb-mode-grid">
+              <ModeLdbCard
+                title="X01 · 3-Dart Avg"
+                accent="x01"
+                rows={x01List.map(e => ({ name: e.name, val: f2(e.avg), sub: `${e.legs}L` }))}
+                onClick={() => goto(ROUTES.STATS_X01, { state: { leaderboard: true } })}
+              />
+              <ModeLdbCard
+                title="Cricket · MPV"
+                accent="crk"
+                rows={crkList.map(e => ({ name: e.name, val: f2(e.mpv), sub: `${e.games}G` }))}
+                onClick={() => goto(ROUTES.STATS_CRICKET, { state: { leaderboard: true } })}
+              />
+              <ModeLdbCard
+                title="ATC · Visit Avg"
+                accent="atc"
+                rows={atcList.map(e => ({ name: e.name, val: f1(e.visitAvg), sub: `${e.games}G` }))}
+                onClick={() => goto(ROUTES.STATS_ATC, { state: { leaderboard: true } })}
+              />
+              <ModeLdbCard
+                title="First To · MPV"
+                accent="ft"
+                rows={ftList.map(e => ({ name: e.name, val: f2(e.mpv), sub: `${e.games}G` }))}
+                onClick={() => goto(ROUTES.STATS_FIRST_TO, { state: { leaderboard: true } })}
+              />
+            </div>
+          </div>
+        </>
+      )}
 
     </div>
   );

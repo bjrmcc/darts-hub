@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { useProfilesStore } from '../../store/profilesStore';
 import { useStatisticsStore } from '../../store/statisticsStore';
+import DataLoading from '../../components/shared/DataLoading';
 import { hashPassword } from '../../utils/hashPassword';
 import { ROUTES } from '../../constants';
 import { useGoto } from '../../hooks/useGoto';
@@ -86,12 +87,15 @@ function GameLogRow({ game, profileId, onDelete }: {
 
 function GameLogSection({ profileId }: { profileId: string }) {
   const history = useStatisticsStore(s => s.history);
+  const statsLoaded = useStatisticsStore(s => s.loaded);
   const myGames = history.filter(g => g.players.includes(profileId));
 
   return (
     <div className="settings-section">
       <p className="settings-section-title">My Game Log</p>
-      {myGames.length === 0 ? (
+      {!statsLoaded ? (
+        <DataLoading />
+      ) : myGames.length === 0 ? (
         <p className="settings-hint">No games recorded yet.</p>
       ) : (
         <div className="gl-list">

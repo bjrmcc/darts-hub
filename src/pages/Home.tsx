@@ -4,6 +4,7 @@ import { ROUTES } from '../constants';
 import { useProfilesStore } from '../store/profilesStore';
 import { useStatisticsStore } from '../store/statisticsStore';
 import { useGoto } from '../hooks/useGoto';
+import DataLoading from '../components/shared/DataLoading';
 import { DartIcon, CricketIcon, ClockIcon, FlagIcon, BullseyeIcon } from '../components/shared/GameIcons';
 import type { GameStats } from '../types';
 
@@ -245,6 +246,7 @@ export default function Home() {
   const { activeProfileId } = useProfilesStore();
   const history = useStatisticsStore(s => s.history);
 
+  const statsLoaded = useStatisticsStore(s => s.loaded);
   const isStats = pathname === ROUTES.STATS_HOME;
   const leaderEntries = isStats ? computeLeaderboard(history) : [];
 
@@ -267,7 +269,9 @@ export default function Home() {
           </div>
         )}
 
-        {isStats && (
+        {isStats && !statsLoaded && <DataLoading />}
+
+        {isStats && statsLoaded && (
           <div className="home-stats-layout">
 
             {/* Overall — full width */}

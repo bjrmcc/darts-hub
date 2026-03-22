@@ -2,6 +2,7 @@ import { ROUTES } from '../constants';
 import { useProfilesStore } from '../store/profilesStore';
 import { useStatisticsStore } from '../store/statisticsStore';
 import { useGoto } from '../hooks/useGoto';
+import DataLoading from '../components/shared/DataLoading';
 import { useLastSetupStore } from '../store/lastSetupStore';
 import { DartIcon, CricketIcon, ClockIcon, FlagIcon, BullseyeIcon } from '../components/shared/GameIcons';
 import type { GameStats, GameResult } from '../types';
@@ -305,6 +306,8 @@ export default function DartsHubScreen() {
   const lastSetup = useLastSetupStore((s) => s.saved);
   const history = useStatisticsStore(s => s.history);
 
+  const statsLoaded = useStatisticsStore(s => s.loaded);
+
   const myAvg = activeProfileId ? multAvg(history, activeProfileId) : '—';
   const leaderboard = computeLeaderboard(history, profiles);
   const feedItems = generateFeedItems(history, profiles);
@@ -365,30 +368,38 @@ export default function DartsHubScreen() {
           <StatsIcon />
           <span className="hub-card-title hub-card-title--big">Stats</span>
 
-          {activeProfileId && (
-            <div className="hub-my-stats">
-              <div className="hub-elo-row">
-                <span className="hub-elo-label">My Rating</span>
-                <span className="hub-elo-val">N/A</span>
-              </div>
-              <div className="hub-avg-row">
-                <span className="hub-avg-label">Avg</span>
-                <span className="hub-avg-val">{myAvg}</span>
-              </div>
-            </div>
-          )}
-
-          {leaderboard.length > 0 && (
-            <div className="hub-leaderboard">
-              <p className="hub-leader-title">Leaderboard</p>
-              {leaderboard.map((entry, i) => (
-                <div key={entry.name} className="hub-leader-row">
-                  <span className="hub-leader-medal">{medals[i] ?? `${i + 1}.`}</span>
-                  <span className="hub-leader-name">{entry.name}</span>
-                  <span className="hub-leader-elo">N/A</span>
+          {!statsLoaded ? (
+            <DataLoading />
+          ) : (
+            <>
+              {activeProfileId && (
+                <div className="hub-my-stats">
+                  <div className="hub-elo-row">
+                    <span className="hub-elo-label">My Rating</span>
+                    <span className="hub-elo-val">N/A</span>
+                  </div>
+                  <div className="hub-avg-row">
+                    <span className="hub-avg-label">Avg</span>
+                    <span className="hub-avg-val">{myAvg}</span>
+                  </div>
                 </div>
-              ))}
-            </div>
+              )}
+
+              {leaderboard.length > 0 ? (
+                <div className="hub-leaderboard">
+                  <p className="hub-leader-title">Leaderboard</p>
+                  {leaderboard.map((entry, i) => (
+                    <div key={entry.name} className="hub-leader-row">
+                      <span className="hub-leader-medal">{medals[i] ?? `${i + 1}.`}</span>
+                      <span className="hub-leader-name">{entry.name}</span>
+                      <span className="hub-leader-elo">N/A</span>
+                    </div>
+                  ))}
+                </div>
+              ) : (
+                <p className="hub-no-data">No games played yet</p>
+              )}
+            </>
           )}
         </div>
 
@@ -403,7 +414,7 @@ export default function DartsHubScreen() {
             <span className="news-header-title">Live Feed</span>
             <span className="news-pulse" />
           </div>
-          <NewsFeed items={feedItems} />
+          {!statsLoaded ? <DataLoading /> : <NewsFeed items={feedItems} />}
         </div>
 
         {/* Settings */}

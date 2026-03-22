@@ -4,6 +4,7 @@ import { useProfilesStore } from '../../store/profilesStore';
 import { hashPassword } from '../../utils/hashPassword';
 import ProfileSearch from '../../components/shared/ProfileSearch';
 import LoadingScreen from '../../components/shared/LoadingScreen';
+import DataLoading from '../../components/shared/DataLoading';
 import { ROUTES } from '../../constants';
 import type { Profile } from '../../types';
 
@@ -62,7 +63,7 @@ function DartboardIcon() {
 
 export default function ProfileSelectionScreen() {
   const navigate = useNavigate();
-  const { profiles, setActiveProfile, setPasswordHash } = useProfilesStore();
+  const { profiles, setActiveProfile, setPasswordHash, loaded: profilesLoaded } = useProfilesStore();
 
   const sorted = [...profiles].sort((a, b) => a.name.localeCompare(b.name));
 
@@ -136,7 +137,9 @@ export default function ProfileSelectionScreen() {
         {step === 'search' && (
           <div className="login-body">
             <p className="login-prompt">Select your profile</p>
-            {sorted.length === 0 ? (
+            {!profilesLoaded ? (
+              <DataLoading />
+            ) : sorted.length === 0 ? (
               <p className="login-empty">No profiles yet — create one to get started.</p>
             ) : (
               <>

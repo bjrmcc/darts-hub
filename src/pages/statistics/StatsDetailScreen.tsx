@@ -6,6 +6,7 @@ import { useGoto } from '../../hooks/useGoto';
 import { ROUTES } from '../../constants';
 import SlidingPages from '../../components/shared/SlidingPages';
 import OverallLeaderboard from '../../components/shared/OverallLeaderboard';
+import DataLoading from '../../components/shared/DataLoading';
 import type { GameStats, GameResult } from '../../types';
 
 /* ── Types ───────────────────────────────────────────────── */
@@ -77,6 +78,7 @@ function computeStats(history: GameResult[], profileId: string): OverallStats {
 export default function StatsDetailScreen() {
   const goto = useGoto();
   const history = useStatisticsStore(s => s.history);
+  const statsLoaded = useStatisticsStore(s => s.loaded);
   const { activeProfileId } = useProfilesStore();
   const loc = useLocation();
   const [page, setPage] = useState((loc.state as { leaderboard?: boolean } | null)?.leaderboard ? 1 : 0);
@@ -95,7 +97,9 @@ export default function StatsDetailScreen() {
 
       <SlidingPages onPageChange={setPage} initialPage={page}>
         <>
-          {!s || s.totalLegs === 0 ? (
+          {!statsLoaded ? (
+            <DataLoading />
+          ) : !s || s.totalLegs === 0 ? (
             <div className="ss-empty">No games recorded yet</div>
           ) : (
             <div className="ss-body">

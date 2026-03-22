@@ -1,12 +1,14 @@
 import { useGoto } from '../../hooks/useGoto';
 import { useStatisticsStore } from '../../store/statisticsStore';
 import { useProfilesStore } from '../../store/profilesStore';
+import DataLoading from '../../components/shared/DataLoading';
 import { ROUTES } from '../../constants';
 
 export default function LeaderboardScreen() {
   const goto = useGoto();
   const profiles = useProfilesStore((s) => s.profiles);
   const history = useStatisticsStore((s) => s.history);
+  const statsLoaded = useStatisticsStore((s) => s.loaded);
 
   const wins = profiles
     .map((p) => ({
@@ -18,8 +20,10 @@ export default function LeaderboardScreen() {
   return (
     <div className="page">
       <h2>Leaderboard</h2>
-      {wins.length === 0 ? (
-        <p>No data yet.</p>
+      {!statsLoaded ? (
+        <DataLoading />
+      ) : wins.length === 0 ? (
+        <p className="hint">No games played yet.</p>
       ) : (
         <ol>
           {wins.map((p) => (

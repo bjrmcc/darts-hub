@@ -6,6 +6,7 @@ import { useGoto } from '../../hooks/useGoto';
 import { CRICKET_NUMBERS, ROUTES } from '../../constants';
 import SlidingPages from '../../components/shared/SlidingPages';
 import MiniModeLeaderboard from '../../components/shared/MiniModeLeaderboard';
+import DataLoading from '../../components/shared/DataLoading';
 import type { GameStats, PlayerDartStats, GameResult } from '../../types';
 
 type FilterKey = '5' | 'week' | 'month' | 'custom';
@@ -149,6 +150,7 @@ const FILTERS: [FilterKey, string][] = [
 export default function CricketStatsScreen() {
   const goto = useGoto();
   const history = useStatisticsStore(s => s.history);
+  const statsLoaded = useStatisticsStore(s => s.loaded);
   const { activeProfileId } = useProfilesStore();
   const [filter, setFilter] = useState<FilterKey>('month');
   const [customFrom, setCustomFrom] = useState('');
@@ -211,7 +213,9 @@ export default function CricketStatsScreen() {
         </div>
       )}
 
-      {!s || s.gamesPlayed === 0 ? (
+      {!statsLoaded ? (
+        <DataLoading />
+      ) : !s || s.gamesPlayed === 0 ? (
         <div className="ss-empty">No Cricket games recorded for this period</div>
       ) : (
         <div className="ss-body">

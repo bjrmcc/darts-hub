@@ -3,6 +3,7 @@ import { useGoto } from '../../hooks/useGoto';
 import { ROUTES } from '../../constants';
 import { useStatisticsStore } from '../../store/statisticsStore';
 import { useProfilesStore } from '../../store/profilesStore';
+import DataLoading from '../../components/shared/DataLoading';
 import type { GameStats } from '../../types';
 
 type Filter = '5' | 'month' | 'all';
@@ -19,6 +20,7 @@ const ALL_NUMBERS = [25, 20, 19, 18, 17, 16, 15, 14, 13, 12, 11, 10, 9, 8, 7, 6,
 export default function FreeThrowStatsScreen() {
   const goto = useGoto();
   const history = useStatisticsStore((s) => s.history);
+  const statsLoaded = useStatisticsStore((s) => s.loaded);
   const { activeProfileId } = useProfilesStore();
   const [filter, setFilter] = useState<Filter>('all');
 
@@ -83,7 +85,9 @@ export default function FreeThrowStatsScreen() {
         ))}
       </div>
 
-      {!hasData ? (
+      {!statsLoaded ? (
+        <DataLoading />
+      ) : !hasData ? (
         <div className="prac-empty">No Free Throw sessions recorded yet</div>
       ) : (
         <div className="prac-body">
