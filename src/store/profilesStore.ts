@@ -3,6 +3,7 @@ import { supabase } from '../lib/supabase';
 import type { RealtimeChannel, RealtimePostgresChangesPayload } from '@supabase/supabase-js';
 import type { Profile } from '../types';
 import { logRT } from '../lib/realtimeLogger';
+import { showError } from './errorStore';
 
 // Module-level refs prevent duplicate channels if subscribe() is called more than once
 let profilesChannel: RealtimeChannel | null = null;
@@ -43,7 +44,12 @@ export const useProfilesStore = create<ProfilesState>((set, get) => ({
       .from('profiles')
       .select('*')
       .order('created_at', { ascending: true });
-    if (error) { console.error('profiles fetch:', error); return; }
+    if (error) {
+      console.error('profiles fetch:', error);
+      set({ loaded: true }); // unblock loading state so UI renders
+      showError('Could not load profiles. Check your connection and refresh.');
+      return;
+    }
     set({ profiles: (data ?? []).map(rowToProfile), loaded: true });
   },
 
@@ -65,7 +71,12 @@ export const useProfilesStore = create<ProfilesState>((set, get) => ({
       password_hash: passwordHash,
       is_admin: name === 'Ross',
     }).then(({ error }) => {
-      if (error) console.error('profiles insert:', error);
+      if (error) {
+        console.error('profiles insert:', error);
+        // Rollback optimistic update so stale data doesn't persist until next reload
+        set((s) => ({ profiles: s.profiles.filter((p) => p.id !== newId) }));
+        showError('Failed to create profile. Please try again.');
+      }
     });
   },
 

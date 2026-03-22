@@ -3,6 +3,7 @@ import { supabase } from '../lib/supabase';
 import type { RealtimeChannel, RealtimePostgresChangesPayload } from '@supabase/supabase-js';
 import type { GameResult, Profile } from '../types';
 import { logRT } from '../lib/realtimeLogger';
+import { showError } from './errorStore';
 
 // Module-level refs prevent duplicate channels if subscribe() is called more than once
 let resultsChannel: RealtimeChannel | null = null;
@@ -41,7 +42,12 @@ export const useStatisticsStore = create<StatisticsState>((set, get) => ({
       .from('game_results')
       .select('*')
       .order('played_at', { ascending: false });
-    if (error) { console.error('game_results fetch:', error); return; }
+    if (error) {
+      console.error('game_results fetch:', error);
+      set({ loaded: true }); // unblock loading state so UI renders
+      showError('Could not load game history. Check your connection and refresh.');
+      return;
+    }
     set({ history: (data ?? []).map(rowToResult), loaded: true });
   },
 
@@ -58,7 +64,12 @@ export const useStatisticsStore = create<StatisticsState>((set, get) => ({
       stats: result.stats,
       meta: result.meta ?? {},
     }).then(({ error }) => {
-      if (error) console.error('game_results insert:', error);
+      if (error) {
+        console.error('game_results insert:', error);
+        // Rollback so the result doesn't appear saved when it isn't
+        set((s) => ({ history: s.history.filter((r) => r.id !== result.id) }));
+        showError('Game result could not be saved. Check your connection.');
+      }
     });
   },
 

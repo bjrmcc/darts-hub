@@ -4,6 +4,8 @@ import { ROUTES } from './constants';
 import Header from './components/shared/Header';
 import RequireProfile from './components/shared/RequireProfile';
 import LoadingScreen from './components/shared/LoadingScreen';
+import ErrorToast from './components/shared/ErrorToast';
+import ErrorBoundary from './components/shared/ErrorBoundary';
 import { useTransitionStore } from './store/transitionStore';
 import { useProfilesStore } from './store/profilesStore';
 import { useStatisticsStore } from './store/statisticsStore';
@@ -66,9 +68,11 @@ import RealtimeDebugPanel from './components/debug/RealtimeDebugPanel';
 
 export default function App() {
   return (
+    <ErrorBoundary>
     <BrowserRouter>
       <DataBootstrap />
       <Header />
+      <ErrorToast />
       {import.meta.env.DEV && <RealtimeDebugPanel />}
       <TransitionOverlay />
       <Routes>
@@ -113,5 +117,6 @@ export default function App() {
         <Route path={ROUTES.STATS_DETAIL} element={<RequireProfile><StatsDetailScreen /></RequireProfile>} />
       </Routes>
     </BrowserRouter>
+    </ErrorBoundary>
   );
 }

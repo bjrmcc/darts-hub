@@ -7061,3 +7061,63 @@ button.secondary:hover {
     font-size: 0.75rem;
   }
 }
+
+/* ── Error toast ── */
+.error-toast {
+  position: fixed;
+  bottom: 1.25rem;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 9999;
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  background: #2a0a0a;
+  border: 1px solid #c0392b;
+  border-radius: 8px;
+  padding: 0.7rem 1rem;
+  min-width: 260px;
+  max-width: calc(100vw - 2rem);
+  box-shadow: 0 4px 20px rgba(0,0,0,0.6);
+}
+.error-toast-msg {
+  flex: 1;
+  font-size: 0.85rem;
+  color: #f5a0a0;
+  line-height: 1.4;
+}
+.error-toast-close {
+  flex-shrink: 0;
+  background: none;
+  border: none;
+  color: #c0392b;
+  font-size: 1rem;
+  cursor: pointer;
+  padding: 0.1rem 0.3rem;
+  line-height: 1;
+}
+.error-toast-close:hover { color: #e74c3c; }
+
+/* ── Error boundary full-page fallback ── */
+.error-boundary-page {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  height: 100dvh;
+  gap: 1rem;
+  padding: 2rem;
+  background: #0d0d0d;
+  text-align: center;
+}
+.error-boundary-title {
+  font-size: 1.4rem;
+  color: #e74c3c;
+  margin: 0;
+}
+.error-boundary-msg {
+  font-size: 0.9rem;
+  color: #aaa;
+  margin: 0;
+  max-width: 400px;
+}
