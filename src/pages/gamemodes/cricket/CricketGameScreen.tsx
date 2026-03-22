@@ -91,6 +91,7 @@ export default function CricketGameScreen() {
   const [cricket, setCricket] = useState<CricketState>(initState);
   const [winner, setWinner] = useState<string | null>(null);
   const [viewing, setViewing] = useState(false);
+  const [confirmLeave, setConfirmLeave] = useState(false);
 
   const { currentPlayerIndex, currentPlayer, nextPlayer, dartIndex, lastTurn, throwDart, throwMiss, snapshot, restore, getAllDarts } =
     useGameTurn(playerNames);
@@ -112,6 +113,7 @@ export default function CricketGameScreen() {
     if (isFirstSync.current) { isFirstSync.current = false; return; }
     if (winner || !sessionStarted.current) return;
     pushState({ cricket, currentPlayerIndex, dartIndex, playerNames });
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [cricket, currentPlayerIndex, dartIndex]);
 
   const snapshotsRef = useRef<Snap[]>([]);
@@ -215,7 +217,15 @@ export default function CricketGameScreen() {
               <button className="win-exit-btn" onClick={() => navigate(ROUTES.HOME)}>Exit to Main Menu</button>
             ) : (
               <>
-                <button className="game-back-btn" onClick={() => navigate(ROUTES.CRICKET_SETUP, { state })}>← Setup</button>
+                {confirmLeave ? (
+                  <>
+                    <span className="game-leave-msg">Leave game?</span>
+                    <button className="game-leave-confirm-btn" onClick={() => navigate(ROUTES.CRICKET_SETUP, { state })}>Leave</button>
+                    <button className="game-leave-cancel-btn" onClick={() => setConfirmLeave(false)}>Stay</button>
+                  </>
+                ) : (
+                  <button className="game-back-btn" onClick={() => setConfirmLeave(true)}>← Setup</button>
+                )}
                 <button className="miss-btn full-miss-btn" onClick={handleMiss}>Miss</button>
                 <button className="undo-btn" onClick={handleUndo} disabled={!canUndo}>Undo ↩</button>
               </>

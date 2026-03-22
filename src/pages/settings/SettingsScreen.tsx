@@ -310,6 +310,49 @@ function TimeSpentSection({ profileId }: { profileId: string }) {
   );
 }
 
+/* ── Section: Export My Data ──────────────────────────── */
+
+function ExportSection({ profileId, profileName, createdAt }: {
+  profileId: string;
+  profileName: string;
+  createdAt?: number;
+}) {
+  const history = useStatisticsStore(s => s.history);
+
+  function handleExport() {
+    const myGames = history.filter((g: GameResult) => g.players.includes(profileId));
+    const payload = {
+      exportedAt: new Date().toISOString(),
+      version: 1,
+      profile: { id: profileId, name: profileName, createdAt },
+      gameResults: myGames,
+    };
+    const blob = new Blob([JSON.stringify(payload, null, 2)], { type: 'application/json' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `darts-hub-${profileName.toLowerCase().replace(/\s+/g, '-')}-${new Date().toISOString().slice(0, 10)}.json`;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+  }
+
+  const gameCount = history.filter((g: GameResult) => g.players.includes(profileId)).length;
+
+  return (
+    <div className="settings-section">
+      <p className="settings-section-title">Export My Data</p>
+      <p className="settings-hint">
+        Download your profile and {gameCount} game result{gameCount !== 1 ? 's' : ''} as JSON.
+      </p>
+      <button className="settings-btn" onClick={handleExport}>
+        Download JSON
+      </button>
+    </div>
+  );
+}
+
 /* ── Screen ───────────────────────────────────────────── */
 
 export default function SettingsScreen() {
@@ -333,6 +376,11 @@ export default function SettingsScreen() {
           passwordHash={activeProfile.passwordHash}
         />
         <TimeSpentSection profileId={activeProfile.id} />
+        <ExportSection
+          profileId={activeProfile.id}
+          profileName={activeProfile.name}
+          createdAt={activeProfile.createdAt}
+        />
         <GameLogSection profileId={activeProfile.id} />
 
         <button className="secondary settings-back-btn" onClick={() => goto(ROUTES.HOME)}>

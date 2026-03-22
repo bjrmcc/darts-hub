@@ -142,7 +142,12 @@ export const useProfilesStore = create<ProfilesState>((set, get) => ({
           profilesFetchDebounce = null;
         }, 300);
       })
-      .subscribe();
+      .subscribe((status, err) => {
+        if (err) console.error('[profiles-sync] subscription error:', err);
+        if (status === 'CHANNEL_ERROR' || status === 'TIMED_OUT') {
+          console.error('[profiles-sync] channel status:', status, '— data will resync on next visibility change');
+        }
+      });
     return () => {
       if (profilesFetchDebounce) { clearTimeout(profilesFetchDebounce); profilesFetchDebounce = null; }
       if (profilesChannel) { supabase.removeChannel(profilesChannel); profilesChannel = null; }

@@ -44,6 +44,7 @@ export default function ATCGameScreen() {
 
   const [winner, setWinner] = useState<string | null>(null);
   const [viewing, setViewing] = useState(false);
+  const [confirmLeave, setConfirmLeave] = useState(false);
 
   // progress[i] = number of sequence entries completed
   const [progress, setProgress] = useState<number[]>(() => playerNames.map(() => 0));
@@ -67,6 +68,7 @@ export default function ATCGameScreen() {
     if (isFirstSync.current) { isFirstSync.current = false; return; }
     if (winner || !sessionStarted.current) return;
     pushState({ progress, currentPlayerIndex, dartIndex, playerNames, sequenceLength: sequences[0]?.length ?? 0 });
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [progress, currentPlayerIndex, dartIndex]);
 
   const snapshotsRef = useRef<ATCSnap[]>([]);
@@ -185,7 +187,15 @@ export default function ATCGameScreen() {
               <button className="win-exit-btn" onClick={() => navigate(ROUTES.HOME)}>Exit to Main Menu</button>
             ) : (
               <>
-                <button className="game-back-btn" onClick={() => navigate(ROUTES.ATC_SETUP, { state })}>← Setup</button>
+                {confirmLeave ? (
+                  <>
+                    <span className="game-leave-msg">Leave game?</span>
+                    <button className="game-leave-confirm-btn" onClick={() => navigate(ROUTES.ATC_SETUP, { state })}>Leave</button>
+                    <button className="game-leave-cancel-btn" onClick={() => setConfirmLeave(false)}>Stay</button>
+                  </>
+                ) : (
+                  <button className="game-back-btn" onClick={() => setConfirmLeave(true)}>← Setup</button>
+                )}
                 <button className="miss-btn full-miss-btn" onClick={() => { pushSnapshot(progress); throwMiss(); }}>Miss</button>
                 <button className="undo-btn" onClick={handleUndo} disabled={!canUndo}>Undo ↩</button>
               </>

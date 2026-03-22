@@ -140,6 +140,33 @@
   border-color: #555;
 }
 
+.game-leave-msg {
+  justify-self: start;
+  font-size: 0.78rem;
+  color: #aaa;
+  align-self: center;
+}
+.game-leave-confirm-btn {
+  background: #7f1d1d;
+  border: 1px solid #b91c1c;
+  color: #fca5a5;
+  font-size: 0.78rem;
+  padding: 0.3rem 0.65rem;
+  border-radius: 5px;
+  cursor: pointer;
+}
+.game-leave-confirm-btn:hover { background: #991b1b; }
+.game-leave-cancel-btn {
+  background: none;
+  border: 1px solid #333;
+  color: #888;
+  font-size: 0.78rem;
+  padding: 0.3rem 0.65rem;
+  border-radius: 5px;
+  cursor: pointer;
+}
+.game-leave-cancel-btn:hover { border-color: #555; color: #aaa; }
+
 .undo-btn {
   justify-self: end;
   background: none;
@@ -4473,6 +4500,54 @@ button.secondary:hover {
 }
 
 .adm-dot { color: #2a1e00; }
+
+.adm-avatar--sm {
+  width: 1.6rem;
+  height: 1.6rem;
+  flex-shrink: 0;
+}
+.adm-avatar--sm .adm-avatar-text { font-size: 0.6rem; }
+
+.adm-diag {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  padding: 0.25rem 0;
+}
+.adm-diag-section {
+  background: #111;
+  border: 1px solid #222;
+  border-radius: 8px;
+  padding: 0.75rem 0.9rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+.adm-diag-label {
+  font-size: 0.65rem;
+  font-weight: 700;
+  color: #c8a020;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+}
+.adm-diag-dim {
+  font-size: 0.72rem;
+  color: #3a3030;
+}
+.adm-diag-row {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+.adm-diag-row-text {
+  font-size: 0.72rem;
+  color: #888;
+  flex: 1;
+}
+.adm-diag-row-time {
+  font-size: 0.65rem;
+  color: #4a3810;
+}
 
 /* Legacy admin CSS kept for any remaining references */
 .admin-page { align-items: stretch; justify-content: flex-start; }

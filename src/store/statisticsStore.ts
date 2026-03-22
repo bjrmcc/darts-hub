@@ -151,7 +151,12 @@ export const useStatisticsStore = create<StatisticsState>((set, get) => ({
           resultsFetchDebounce = null;
         }, 300);
       })
-      .subscribe();
+      .subscribe((status, err) => {
+        if (err) console.error('[results-sync] subscription error:', err);
+        if (status === 'CHANNEL_ERROR' || status === 'TIMED_OUT') {
+          console.error('[results-sync] channel status:', status, '— data will resync on next visibility change');
+        }
+      });
     return () => {
       if (resultsFetchDebounce) { clearTimeout(resultsFetchDebounce); resultsFetchDebounce = null; }
       if (resultsChannel) { supabase.removeChannel(resultsChannel); resultsChannel = null; }

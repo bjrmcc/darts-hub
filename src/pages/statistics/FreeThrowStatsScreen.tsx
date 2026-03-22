@@ -24,6 +24,7 @@ export default function FreeThrowStatsScreen() {
   const { activeProfileId } = useProfilesStore();
   const [filter, setFilter] = useState<Filter>('all');
 
+  // eslint-disable-next-line react-hooks/purity -- intentional: stable snapshot of "now" for the month filter
   const now = Date.now();
   let sessions = history.filter(g => g.gameMode === 'practice');
   if (filter === '5')     sessions = sessions.slice(0, 5);

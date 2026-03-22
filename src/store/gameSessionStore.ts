@@ -93,7 +93,12 @@ export const useGameSessionStore = create<GameSessionState>((set, get) => ({
           onUpdate(row.state as Record<string, unknown>);
         }
       )
-      .subscribe();
+      .subscribe((status, err) => {
+        if (err) console.error(`[session-${id.slice(0, 8)}] subscription error:`, err);
+        if (status === 'CHANNEL_ERROR' || status === 'TIMED_OUT') {
+          console.error(`[session-${id.slice(0, 8)}] channel status:`, status);
+        }
+      });
 
     sessionChannels.set(id, channel);
     return () => {

@@ -41,6 +41,7 @@ export default function FreeThrowGameScreen() {
 
   const [targetNumber, setTargetNumber] = useState<number | null>(null);
   const [locked, setLocked] = useState(false);
+  const [confirmLeave, setConfirmLeave] = useState(false);
 
   const [stats, setStats] = useState<Record<number, NumberStats>>(() => {
     const s: Record<number, NumberStats> = {};
@@ -203,7 +204,15 @@ export default function FreeThrowGameScreen() {
                 <GameBoard onHit={handleHit} />
               </div>
               <div className="board-info-bottom">
-                <button className="game-back-btn" onClick={() => navigate(ROUTES.PRACTICE, { state })}>← Setup</button>
+                {confirmLeave ? (
+                  <>
+                    <span className="game-leave-msg">Leave session?</span>
+                    <button className="game-leave-confirm-btn" onClick={() => navigate(ROUTES.PRACTICE, { state })}>Leave</button>
+                    <button className="game-leave-cancel-btn" onClick={() => setConfirmLeave(false)}>Stay</button>
+                  </>
+                ) : (
+                  <button className="game-back-btn" onClick={() => setConfirmLeave(true)}>← Setup</button>
+                )}
                 <button className="miss-btn full-miss-btn" onClick={handleMiss}>Miss</button>
                 <button className="undo-btn" onClick={handleUndo} disabled={!canUndo}>Undo ↩</button>
               </div>

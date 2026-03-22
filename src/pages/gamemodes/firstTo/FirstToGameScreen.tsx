@@ -59,6 +59,7 @@ export default function FirstToGameScreen() {
 
   const [winner, setWinner] = useState<string | null>(null);
   const [viewing, setViewing] = useState(false);
+  const [confirmLeave, setConfirmLeave] = useState(false);
 
   const [hits, setHits] = useState<number[]>(() => playerNames.map(() => 0));
 
@@ -81,6 +82,7 @@ export default function FirstToGameScreen() {
     if (isFirstSync.current) { isFirstSync.current = false; return; }
     if (winner || !sessionStarted.current) return;
     pushState({ hits, targetNumber, targetHits, currentPlayerIndex, dartIndex, playerNames });
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [hits, currentPlayerIndex, dartIndex]);
 
   const snapshotsRef = useRef<FTSnap[]>([]);
@@ -183,7 +185,15 @@ export default function FirstToGameScreen() {
               <button className="win-exit-btn" onClick={() => navigate(ROUTES.HOME)}>Exit to Main Menu</button>
             ) : (
               <>
-                <button className="game-back-btn" onClick={() => navigate(ROUTES.FIRST_TO_SETUP, { state })}>← Setup</button>
+                {confirmLeave ? (
+                  <>
+                    <span className="game-leave-msg">Leave game?</span>
+                    <button className="game-leave-confirm-btn" onClick={() => navigate(ROUTES.FIRST_TO_SETUP, { state })}>Leave</button>
+                    <button className="game-leave-cancel-btn" onClick={() => setConfirmLeave(false)}>Stay</button>
+                  </>
+                ) : (
+                  <button className="game-back-btn" onClick={() => setConfirmLeave(true)}>← Setup</button>
+                )}
                 <button className="miss-btn full-miss-btn" onClick={() => { pushSnapshot(hits); throwMiss(); }}>Miss</button>
                 <button className="undo-btn" onClick={handleUndo} disabled={!canUndo}>Undo ↩</button>
               </>

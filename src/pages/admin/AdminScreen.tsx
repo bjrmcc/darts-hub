@@ -1,9 +1,10 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useGoto } from '../../hooks/useGoto';
 import { ROUTES } from '../../constants';
 import { useProfilesStore } from '../../store/profilesStore';
 import { useStatisticsStore } from '../../store/statisticsStore';
 import { hashPassword } from '../../utils/hashPassword';
+import { supabase } from '../../lib/supabase';
 import type { GameStats, Profile } from '../../types';
 
 /* ── Helpers ─────────────────────────────────────────────── */
@@ -18,6 +19,13 @@ const GAME_MODE_KEYS = ['x01', 'cricket', 'aroundTheClock', 'firstTo', 'practice
 
 function fmtDate(ts: number): string {
   return new Date(ts).toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: '2-digit' });
+}
+
+function fmtAgo(iso: string): string {
+  const diff = Math.floor((Date.now() - new Date(iso).getTime()) / 1000);
+  if (diff < 60) return `${diff}s ago`;
+  if (diff < 3600) return `${Math.floor(diff / 60)}m ago`;
+  return `${Math.floor(diff / 3600)}h ago`;
 }
 
 function initials(name: string): string {
@@ -111,15 +119,18 @@ function ProfilesTab() {
   const [confirmPw, setConfirmPw] = useState('');
   const [pwError, setPwError] = useState('');
   const [pwSuccess, setPwSuccess] = useState<string | null>(null);
+  const [pwSaving, setPwSaving] = useState(false);
 
   async function handleChangePw(id: string) {
     if (!newPw) { setPwError('Enter a password.'); return; }
     if (newPw !== confirmPw) { setPwError('Passwords do not match.'); return; }
+    setPwSaving(true);
     const hash = await hashPassword(newPw);
     setPasswordHash(id, hash);
     setChangingPwId(null);
     setNewPw(''); setConfirmPw(''); setPwError('');
     setPwSuccess(id);
+    setPwSaving(false);
     setTimeout(() => setPwSuccess(null), 2500);
   }
 
@@ -193,12 +204,12 @@ function ProfilesTab() {
                   placeholder="Confirm password"
                   value={confirmPw}
                   onChange={e => { setConfirmPw(e.target.value); setPwError(''); }}
-                  onKeyDown={e => e.key === 'Enter' && handleChangePw(p.id)}
+                  onKeyDown={e => e.key === 'Enter' && !pwSaving && handleChangePw(p.id)}
                   className="adm-input"
                 />
                 {pwError && <span className="adm-error">{pwError}</span>}
-                <button className="adm-save-btn" onClick={() => handleChangePw(p.id)}>
-                  Save Password
+                <button className="adm-save-btn" onClick={() => handleChangePw(p.id)} disabled={pwSaving}>
+                  {pwSaving ? 'Saving…' : 'Save Password'}
                 </button>
               </div>
             )}
@@ -271,6 +282,100 @@ function GamesTab() {
   );
 }
 
+/* ── Diagnostics Tab ──────────────────────────────────────── */
+
+interface ActiveSession {
+  id: string;
+  game_mode: string;
+  player_ids: string[];
+  updated_at: string;
+}
+
+function DiagnosticsTab() {
+  const { profiles } = useProfilesStore();
+  const { history } = useStatisticsStore();
+  const [sessions, setSessions] = useState<ActiveSession[] | null>(null);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    async function load() {
+      const { data } = await supabase
+        .from('game_sessions')
+        .select('id, game_mode, player_ids, updated_at')
+        .order('updated_at', { ascending: false });
+      setSessions((data ?? []) as ActiveSession[]);
+      setLoading(false);
+    }
+    load();
+    const interval = setInterval(load, 15000);
+    return () => clearInterval(interval);
+  }, []);
+
+  const noPassword = profiles.filter(p => !p.passwordHash);
+
+  const byMode = GAME_MODE_KEYS.map(key => ({
+    key,
+    count: history.filter(g => g.gameMode === key).length,
+  })).filter(r => r.count > 0);
+
+  return (
+    <div className="adm-diag">
+
+      <div className="adm-diag-section">
+        <span className="adm-diag-label">Active Sessions</span>
+        {loading ? (
+          <span className="adm-diag-dim">Loading…</span>
+        ) : !sessions?.length ? (
+          <span className="adm-diag-dim">No active sessions</span>
+        ) : (
+          sessions.map(s => (
+            <div key={s.id} className="adm-diag-row">
+              <span className={`adm-mode-chip adm-mode-chip--${MODE_ACCENT[s.game_mode] ?? 'dim'}`}>
+                {MODE_SHORT[s.game_mode] ?? s.game_mode}
+              </span>
+              <span className="adm-diag-row-text">
+                {s.player_ids.length} player{s.player_ids.length !== 1 ? 's' : ''}
+              </span>
+              <span className="adm-diag-row-time">{fmtAgo(s.updated_at)}</span>
+            </div>
+          ))
+        )}
+      </div>
+
+      <div className="adm-diag-section">
+        <span className="adm-diag-label">Games by Mode</span>
+        {byMode.length === 0 ? (
+          <span className="adm-diag-dim">No games recorded</span>
+        ) : (
+          byMode.map(r => (
+            <div key={r.key} className="adm-diag-row">
+              <span className={`adm-mode-chip adm-mode-chip--${MODE_ACCENT[r.key]}`}>
+                {MODE_SHORT[r.key]}
+              </span>
+              <span className="adm-diag-row-text">{r.count} game{r.count !== 1 ? 's' : ''}</span>
+            </div>
+          ))
+        )}
+      </div>
+
+      {noPassword.length > 0 && (
+        <div className="adm-diag-section">
+          <span className="adm-diag-label">No Password Set</span>
+          {noPassword.map(p => (
+            <div key={p.id} className="adm-diag-row">
+              <div className="adm-avatar adm-avatar--sm">
+                <span className="adm-avatar-text">{initials(p.name)}</span>
+              </div>
+              <span className="adm-diag-row-text">{p.name}</span>
+            </div>
+          ))}
+        </div>
+      )}
+
+    </div>
+  );
+}
+
 /* ── Screen ───────────────────────────────────────────────── */
 
 export default function AdminScreen() {
@@ -278,7 +383,7 @@ export default function AdminScreen() {
   const { profiles, activeProfileId } = useProfilesStore();
   const { history } = useStatisticsStore();
   const activeProfile = profiles.find(p => p.id === activeProfileId);
-  const [tab, setTab] = useState<'profiles' | 'games'>('profiles');
+  const [tab, setTab] = useState<'profiles' | 'games' | 'diagnostics'>('profiles');
 
   if (!activeProfile || (activeProfile.name !== 'Ross' && !activeProfile.isAdmin)) {
     return (
@@ -322,14 +427,21 @@ export default function AdminScreen() {
           Game Log
           <span className="adm-tab-count">{history.length}</span>
         </button>
+        <button
+          className={`adm-tab${tab === 'diagnostics' ? ' adm-tab--active' : ''}`}
+          onClick={() => setTab('diagnostics')}
+        >
+          Diagnostics
+        </button>
       </div>
 
       {/* Content */}
       <div className="adm-body">
         <ExportSection profileCount={profiles.length} gameCount={history.length} />
         <DataRepairSection profiles={profiles} />
-        {tab === 'profiles' && <ProfilesTab />}
-        {tab === 'games'    && <GamesTab />}
+        {tab === 'profiles'    && <ProfilesTab />}
+        {tab === 'games'       && <GamesTab />}
+        {tab === 'diagnostics' && <DiagnosticsTab />}
       </div>
 
     </div>

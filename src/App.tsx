@@ -24,7 +24,33 @@ function DataBootstrap() {
     fetchStats();
     const unsubProfiles = subProfiles();
     const unsubStats = subStats();
-    return () => { unsubProfiles(); unsubStats(); };
+
+    // Refetch when the tab becomes visible again (e.g. returning from background
+    // on mobile, or switching back to the browser tab on desktop). This closes the
+    // window where realtime events were missed while the socket was stale/suspended.
+    function handleVisibilityChange() {
+      if (document.visibilityState === 'visible') {
+        useProfilesStore.getState().fetch();
+        useStatisticsStore.getState().fetch();
+      }
+    }
+
+    // Refetch when the browser regains network access so any inserts/deletes that
+    // happened during the offline window are picked up immediately.
+    function handleOnline() {
+      useProfilesStore.getState().fetch();
+      useStatisticsStore.getState().fetch();
+    }
+
+    document.addEventListener('visibilitychange', handleVisibilityChange);
+    window.addEventListener('online', handleOnline);
+
+    return () => {
+      unsubProfiles();
+      unsubStats();
+      document.removeEventListener('visibilitychange', handleVisibilityChange);
+      window.removeEventListener('online', handleOnline);
+    };
   }, []);
   return null;
 }
