@@ -1,7 +1,10 @@
 import { useState } from 'react';
 import { useLocation } from 'react-router-dom';
 import { useGoto } from '../../../hooks/useGoto';
+import { useInfoModal } from '../../../hooks/useInfoModal';
 import { useLastSetupStore } from '../../../store/lastSetupStore';
+import InfoModal from '../../../components/shared/InfoModal';
+import { GAME_INFO } from '../../../config/gameInfoContent';
 import {
   DndContext,
   closestCenter,
@@ -33,6 +36,8 @@ export default function ATCSetupScreen() {
   const activeProfile = profiles.find((p) => p.id === activeProfileId);
 
   const defaultPlayers = activeProfile ? [activeProfile] : [];
+  const { open: infoOpen, close: closeInfo, reopen: openInfo } = useInfoModal('atc');
+
   const [mode, setMode] = useState<Mode>(state?.mode ?? 'players');
   const [difficulty, setDifficulty] = useState(state?.difficulty ?? 15);
   const [legs, setLegs] = useState<Legs>(state?.legs ?? 1);
@@ -68,7 +73,11 @@ export default function ATCSetupScreen() {
 
   return (
     <div className="page">
-      <h2>Around the Clock</h2>
+      {infoOpen && <InfoModal content={GAME_INFO.atc} onClose={closeInfo} />}
+      <div className="page-title-row">
+        <h2>Around the Clock</h2>
+        <button className="info-btn" onClick={openInfo} aria-label="How to play">ⓘ</button>
+      </div>
 
       {/* Mode */}
       <div className="option-group">

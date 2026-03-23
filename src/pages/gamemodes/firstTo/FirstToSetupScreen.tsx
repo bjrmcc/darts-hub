@@ -1,7 +1,10 @@
 import { useState } from 'react';
 import { useLocation } from 'react-router-dom';
 import { useGoto } from '../../../hooks/useGoto';
+import { useInfoModal } from '../../../hooks/useInfoModal';
 import { useLastSetupStore } from '../../../store/lastSetupStore';
+import InfoModal from '../../../components/shared/InfoModal';
+import { GAME_INFO } from '../../../config/gameInfoContent';
 import {
   DndContext,
   closestCenter,
@@ -32,6 +35,8 @@ export default function FirstToSetupScreen() {
   const { state } = useLocation();
   const { profiles, activeProfileId } = useProfilesStore();
   const activeProfile = profiles.find((p) => p.id === activeProfileId);
+
+  const { open: infoOpen, close: closeInfo, reopen: openInfo } = useInfoModal('firstTo');
 
   const [mode, setMode] = useState<Mode>(state?.mode ?? 'players');
   const [players, setPlayers] = useState<Profile[]>(state?.players ?? (activeProfile ? [activeProfile] : []));
@@ -67,7 +72,11 @@ export default function FirstToSetupScreen() {
 
   return (
     <div className="page">
-      <h2>First To</h2>
+      {infoOpen && <InfoModal content={GAME_INFO.firstTo} onClose={closeInfo} />}
+      <div className="page-title-row">
+        <h2>First To</h2>
+        <button className="info-btn" onClick={openInfo} aria-label="How to play">ⓘ</button>
+      </div>
 
       {/* Mode */}
       <div className="option-group">

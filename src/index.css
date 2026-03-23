@@ -1286,6 +1286,164 @@ li {
 .auth-modal-submit:hover { opacity: 0.88; }
 .auth-modal-submit:disabled { opacity: 0.35; cursor: default; }
 
+/* ── Info Modal ──────────────────────────────────────── */
+
+@keyframes info-fade-in {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+@keyframes info-scale-in {
+  from { opacity: 0; transform: scale(0.93) translateY(8px); }
+  to   { opacity: 1; transform: scale(1)    translateY(0);   }
+}
+
+.info-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.78);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 300;
+  padding: 1rem;
+  animation: info-fade-in 0.18s ease;
+}
+
+.info-modal {
+  background: #141414;
+  border: 1px solid #242424;
+  border-radius: 18px;
+  width: 100%;
+  max-width: 400px;
+  max-height: 82dvh;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  animation: info-scale-in 0.2s ease;
+}
+
+/* accent top border */
+.info-modal--red    { border-top: 2px solid #c0392b; }
+.info-modal--green  { border-top: 2px solid #2ecc71; }
+.info-modal--blue   { border-top: 2px solid #3b82f6; }
+.info-modal--amber  { border-top: 2px solid #f59e0b; }
+.info-modal--purple { border-top: 2px solid #a855f7; }
+
+.info-modal-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 1rem 1.1rem 0.75rem;
+  flex-shrink: 0;
+}
+
+.info-modal-title {
+  font-size: 1.05rem;
+  font-weight: 800;
+  letter-spacing: 0.04em;
+}
+.info-modal-title--red    { color: #e05050; }
+.info-modal-title--green  { color: #4ade80; }
+.info-modal-title--blue   { color: #60a5fa; }
+.info-modal-title--amber  { color: #fbbf24; }
+.info-modal-title--purple { color: #c084fc; }
+
+.info-modal-close {
+  background: none;
+  border: 1px solid #2a2a2a;
+  border-radius: 50%;
+  color: #555;
+  font-size: 0.75rem;
+  width: 1.8rem;
+  height: 1.8rem;
+  min-width: unset;
+  padding: 0;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  transition: color 0.12s, border-color 0.12s;
+}
+.info-modal-close:hover { color: #aaa; border-color: #444; }
+
+.info-modal-body {
+  overflow-y: auto;
+  padding: 0 1.1rem 0.5rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.9rem;
+}
+
+.info-modal-section { display: flex; flex-direction: column; gap: 0.35rem; }
+
+.info-modal-section-heading {
+  font-size: 0.65rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.07em;
+  color: #555;
+  margin: 0;
+}
+
+.info-modal-list {
+  margin: 0;
+  padding: 0 0 0 1.1rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.3rem;
+}
+
+.info-modal-item {
+  font-size: 0.8rem;
+  color: #c0c0c0;
+  line-height: 1.45;
+}
+
+.info-modal-dismiss {
+  font-size: 0.6rem;
+  color: #2e2e2e;
+  text-align: center;
+  padding: 0.6rem 0 0.75rem;
+  margin: 0;
+  flex-shrink: 0;
+}
+
+/* ── Info button (sits next to setup screen title) ───── */
+
+.page-title-row {
+  display: flex;
+  align-items: center;
+  gap: 0.55rem;
+  /* preserve h2 bottom margin */
+  margin-bottom: 1rem;
+}
+.page-title-row h2 {
+  margin-bottom: 0;
+}
+
+.info-btn {
+  background: none;
+  border: 1px solid #2e2e2e;
+  border-radius: 50%;
+  color: #444;
+  font-size: 0.85rem;
+  width: 1.75rem;
+  height: 1.75rem;
+  min-width: unset;
+  padding: 0;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  transition: color 0.15s, border-color 0.15s;
+  /* don't inherit full-width button style */
+  width: 1.75rem;
+  max-width: unset;
+}
+.info-btn:hover { color: #aaa; border-color: #555; }
+
 /* ── Player Picker Modal ─────────────────────────────── */
 
 .player-picker-trigger {

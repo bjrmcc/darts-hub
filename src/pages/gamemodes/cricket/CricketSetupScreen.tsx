@@ -1,7 +1,10 @@
 import { useState } from 'react';
 import { useLocation } from 'react-router-dom';
 import { useGoto } from '../../../hooks/useGoto';
+import { useInfoModal } from '../../../hooks/useInfoModal';
 import { useLastSetupStore } from '../../../store/lastSetupStore';
+import InfoModal from '../../../components/shared/InfoModal';
+import { GAME_INFO } from '../../../config/gameInfoContent';
 import {
   DndContext,
   closestCenter,
@@ -73,6 +76,8 @@ export default function CricketSetupScreen() {
   const { state } = useLocation();
   const { profiles, activeProfileId } = useProfilesStore();
   const activeProfile = profiles.find((p) => p.id === activeProfileId);
+
+  const { open: infoOpen, close: closeInfo, reopen: openInfo } = useInfoModal('cricket');
 
   const [mode, setMode] = useState<Mode>(state?.mode ?? 'players');
   const [difficulty, setDifficulty] = useState(state?.difficulty ?? 15);
@@ -150,7 +155,11 @@ export default function CricketSetupScreen() {
 
   return (
     <div className="page">
-      <h2>Cricket</h2>
+      {infoOpen && <InfoModal content={GAME_INFO.cricket} onClose={closeInfo} />}
+      <div className="page-title-row">
+        <h2>Cricket</h2>
+        <button className="info-btn" onClick={openInfo} aria-label="How to play">ⓘ</button>
+      </div>
 
       {/* Mode */}
       <div className="option-group">

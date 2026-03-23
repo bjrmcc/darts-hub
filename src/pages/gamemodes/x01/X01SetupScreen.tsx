@@ -1,7 +1,10 @@
 import { useState } from 'react';
 import { useLocation } from 'react-router-dom';
 import { useGoto } from '../../../hooks/useGoto';
+import { useInfoModal } from '../../../hooks/useInfoModal';
 import { useLastSetupStore } from '../../../store/lastSetupStore';
+import InfoModal from '../../../components/shared/InfoModal';
+import { GAME_INFO } from '../../../config/gameInfoContent';
 import {
   DndContext,
   closestCenter,
@@ -32,6 +35,8 @@ export default function X01SetupScreen() {
   const { profiles, activeProfileId } = useProfilesStore();
 
   const activeProfile = profiles.find((p) => p.id === activeProfileId);
+
+  const { open: infoOpen, close: closeInfo, reopen: openInfo } = useInfoModal('x01');
 
   const [variant, setVariant] = useState<X01Variant>(state?.variant ?? 501);
   const [mode, setMode] = useState<Mode>(state?.mode ?? 'players');
@@ -71,7 +76,11 @@ export default function X01SetupScreen() {
 
   return (
     <div className="page">
-      <h2>X01</h2>
+      {infoOpen && <InfoModal content={GAME_INFO.x01} onClose={closeInfo} />}
+      <div className="page-title-row">
+        <h2>X01</h2>
+        <button className="info-btn" onClick={openInfo} aria-label="How to play">ⓘ</button>
+      </div>
 
       {/* Variant */}
       <div className="option-group">

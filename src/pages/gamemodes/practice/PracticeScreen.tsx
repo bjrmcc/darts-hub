@@ -2,7 +2,10 @@ import { useLocation } from 'react-router-dom';
 import { useProfilesStore } from '../../../store/profilesStore';
 import { ROUTES } from '../../../constants';
 import { useGoto } from '../../../hooks/useGoto';
+import { useInfoModal } from '../../../hooks/useInfoModal';
 import { useLastSetupStore } from '../../../store/lastSetupStore';
+import InfoModal from '../../../components/shared/InfoModal';
+import { GAME_INFO } from '../../../config/gameInfoContent';
 
 export default function PracticeScreen() {
   const goto = useGoto();
@@ -10,10 +13,15 @@ export default function PracticeScreen() {
   const { state } = useLocation();
   const { profiles, activeProfileId } = useProfilesStore();
   const activeProfile = profiles.find((p) => p.id === activeProfileId);
+  const { open: infoOpen, close: closeInfo, reopen: openInfo } = useInfoModal('freeThrow');
 
   return (
     <div className="page">
-      <h2>Free Throw</h2>
+      {infoOpen && <InfoModal content={GAME_INFO.freeThrow} onClose={closeInfo} />}
+      <div className="page-title-row">
+        <h2>Free Throw</h2>
+        <button className="info-btn" onClick={openInfo} aria-label="How to play">ⓘ</button>
+      </div>
 
       {activeProfile && (
         <div className="setup-section">
