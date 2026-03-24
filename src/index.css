@@ -7253,6 +7253,11 @@ button.secondary:hover {
 /* ── Phones and small tablets (≤ 768px) ── */
 @media (max-width: 768px) {
 
+  /* Prevent iOS Safari from auto-zooming when inputs are focused */
+  input, textarea, select {
+    font-size: max(16px, 1em) !important;
+  }
+
   /* Dynamic viewport height — handles mobile browser chrome collapsing */
   .cricket-screen,
   .game-screen {
