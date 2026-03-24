@@ -7456,6 +7456,43 @@ button.secondary:hover {
 
   /* Cricket team player rows */
   .team-player { min-height: 44px; }
+
+  /* ── Leaderboard screen (GeneralStatisticsScreen) ────── */
+
+  /* Allow the page to scroll rather than clipping overflowing content */
+  .ldb-screen {
+    max-height: none;
+    overflow-y: auto;
+    overflow-x: hidden;
+  }
+
+  /* Mode cards grid — 2×2 instead of 4 in a single row */
+  .ldb-mode-grid {
+    grid-template-columns: 1fr 1fr;
+    grid-template-rows: auto auto;
+    overflow: visible;
+  }
+
+  /* Allow mode cards and their content to grow to natural height */
+  .ldb-modes-wrap { overflow: visible; }
+  .ldb-mode-card  { min-height: unset; }
+  .ldb-mode-rows  { overflow: visible; }
+
+  /* Overall preview table — drop the Darts column */
+  .ldb-overall-preview-head,
+  .ldb-overall-preview-row {
+    grid-template-columns: 1.5rem 1fr 2.8rem 3.2rem;
+  }
+  .ldb-overall-preview-head > span:last-child,
+  .ldb-overall-preview-row > span:last-child { display: none; }
+
+  /* Overall full leaderboard (OverallLeaderboard component) — drop Darts column */
+  .ldb-overall-head,
+  .ldb-full-row--5col {
+    grid-template-columns: 1.8rem 1fr 3rem 3.5rem;
+  }
+  .ldb-overall-head > span:last-child,
+  .ldb-full-row--5col > span:last-child { display: none; }
 }
 
 /* ── Narrow phones (≤ 480px) ──────────────────────────────── */
@@ -7538,4 +7575,8 @@ button.secondary:hover {
 
   /* Reduce home panel side padding on very narrow phones */
   .home-panel { padding: 0 0.5rem 0.5rem; }
+
+  /* ── Leaderboard — narrow phone refinements ─────── */
+  /* Single-column mode grid on very small screens */
+  .ldb-mode-grid { grid-template-columns: 1fr; }
 }
