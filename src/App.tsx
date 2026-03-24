@@ -5,6 +5,7 @@ import Header from './components/shared/Header';
 import RequireProfile from './components/shared/RequireProfile';
 import LoadingScreen from './components/shared/LoadingScreen';
 import ErrorToast from './components/shared/ErrorToast';
+import FullscreenManager from './components/shared/FullscreenManager';
 import ErrorBoundary from './components/shared/ErrorBoundary';
 import { useTransitionStore } from './store/transitionStore';
 import { useProfilesStore } from './store/profilesStore';
@@ -99,6 +100,7 @@ export default function App() {
       <DataBootstrap />
       <Header />
       <ErrorToast />
+      <FullscreenManager />
       {import.meta.env.DEV && <RealtimeDebugPanel />}
       <TransitionOverlay />
       <Routes>

@@ -7369,6 +7369,42 @@ button.secondary:hover {
   }
 }
 
+/* ── iOS Add to Home Screen prompt ── */
+.fs-prompt {
+  position: fixed;
+  bottom: calc(1rem + env(safe-area-inset-bottom, 0px));
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 9999;
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  background: #1a1a1a;
+  border: 1px solid #444;
+  border-radius: 10px;
+  padding: 0.7rem 1rem;
+  max-width: calc(100vw - 2rem);
+  box-shadow: 0 4px 20px rgba(0,0,0,0.7);
+}
+.fs-prompt-text {
+  flex: 1;
+  font-size: 0.82rem;
+  color: #ccc;
+  line-height: 1.4;
+}
+.fs-prompt-text strong { color: #fff; }
+.fs-prompt-close {
+  flex-shrink: 0;
+  background: none;
+  border: none;
+  color: #666;
+  font-size: 1rem;
+  cursor: pointer;
+  padding: 0.1rem 0.3rem;
+  line-height: 1;
+}
+.fs-prompt-close:hover { color: #aaa; }
+
 /* ── Error toast ── */
 .error-toast {
   position: fixed;
