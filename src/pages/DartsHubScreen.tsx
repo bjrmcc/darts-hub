@@ -8,46 +8,44 @@ import { DartIcon, CricketIcon, ClockIcon, FlagIcon, BullseyeIcon } from '../com
 import type { GameStats, GameResult } from '../types';
 import type { Profile } from '../types';
 
-/* ── ELO helpers ─────────────────────────────────────────── */
+/* ── Stats helpers ───────────────────────────────────────── */
 
-const BASE_ELO = 1200;
-const K = 32;
-
-function computeElo(history: GameResult[], profileId: string): number {
-  const relevant = history
-    .filter(g => g.players.includes(profileId))
-    .slice()
-    .sort((a, b) => a.date - b.date);
-  let elo = BASE_ELO;
-  for (const game of relevant) {
-    const won = game.winnerId === profileId;
-    const expected = 1 / (1 + Math.pow(10, (BASE_ELO - elo) / 400));
-    elo = Math.round(elo + K * ((won ? 1 : 0) - expected));
-  }
-  return elo;
-}
-
-function computeLeaderboard(
+function computeWinsLeaderboard(
   history: GameResult[],
   profiles: Profile[],
-): { name: string; elo: number }[] {
+): { name: string; wins: number }[] {
   return profiles
-    .map(p => ({ name: p.name, elo: computeElo(history, p.id), played: history.filter(g => g.players.includes(p.id)).length }))
-    .filter(p => p.played > 0)
-    .sort((a, b) => b.elo - a.elo)
-    .slice(0, 5);
+    .map(p => ({ name: p.name, wins: history.filter(g => g.winnerId === p.id).length }))
+    .filter(p => p.wins > 0)
+    .sort((a, b) => b.wins - a.wins)
+    .slice(0, 3);
 }
 
-function multAvg(history: GameResult[], profileId: string): string {
-  const mults: number[] = [];
+function count180s(history: GameResult[], profileId: string): number {
+  let total = 0;
   for (const g of history) {
-    for (const p of (g.stats as GameStats).players) {
-      if (p.playerId !== profileId) continue;
-      mults.push(...(p.d1m ?? []), ...(p.d2m ?? []), ...(p.d3m ?? []));
+    if (g.gameMode !== 'x01') continue;
+    const rec = (g.stats as GameStats).players.find(p => p.playerId === profileId);
+    if (!rec) continue;
+    for (let i = 0; i < rec.d1.length; i++) {
+      if ((rec.d1[i] ?? 0) + (rec.d2[i] ?? 0) + (rec.d3[i] ?? 0) === 180) total++;
     }
   }
-  if (!mults.length) return '—';
-  return (mults.reduce((a, b) => a + b, 0) / mults.length).toFixed(2);
+  return total;
+}
+
+function computeMPV(history: GameResult[], profileId: string): string {
+  let marks = 0, visits = 0;
+  for (const g of history) {
+    if (g.gameMode !== 'cricket') continue;
+    const rec = (g.stats as GameStats).players.find(p => p.playerId === profileId);
+    if (!rec) continue;
+    visits += rec.d1.length;
+    for (const arr of [rec.d1m ?? [], rec.d2m ?? [], rec.d3m ?? []] as number[][])
+      for (const v of arr) marks += v;
+  }
+  if (!visits) return '—';
+  return (marks / visits).toFixed(2);
 }
 
 /* ── News feed ───────────────────────────────────────────── */
@@ -209,11 +207,11 @@ function generateFeedItems(history: GameResult[], profiles: Profile[]): FeedItem
   }
 
   // ── Current leaderboard snapshot
-  const leaderboard = computeLeaderboard(history, profiles);
+  const leaderboard = computeWinsLeaderboard(history, profiles);
   if (leaderboard.length >= 2) {
     const top = leaderboard
       .slice(0, 3)
-      .map((e, i) => `${['1st', '2nd', '3rd'][i]} ${e.name}`)
+      .map((entry, i) => `${['1st', '2nd', '3rd'][i]} ${entry.name}`)
       .join(' · ');
     items.push({
       id: 'leaderboard-snapshot',
@@ -308,8 +306,9 @@ export default function DartsHubScreen() {
 
   const statsLoaded = useStatisticsStore(s => s.loaded);
 
-  const myAvg = activeProfileId ? multAvg(history, activeProfileId) : '—';
-  const leaderboard = computeLeaderboard(history, profiles);
+  const my180s = activeProfileId ? count180s(history, activeProfileId) : 0;
+  const myMPV = activeProfileId ? computeMPV(history, activeProfileId) : '—';
+  const leaderboard = computeWinsLeaderboard(history, profiles);
   const feedItems = generateFeedItems(history, profiles);
 
   const medals = ['🥇', '🥈', '🥉'];
@@ -372,32 +371,32 @@ export default function DartsHubScreen() {
             <DataLoading />
           ) : (
             <>
-              {activeProfileId && (
-                <div className="hub-my-stats">
-                  <div className="hub-elo-row">
-                    <span className="hub-elo-label">My Rating</span>
-                    <span className="hub-elo-val">N/A</span>
-                  </div>
-                  <div className="hub-avg-row">
-                    <span className="hub-avg-label">Avg</span>
-                    <span className="hub-avg-val">{myAvg}</span>
-                  </div>
-                </div>
-              )}
-
               {leaderboard.length > 0 ? (
                 <div className="hub-leaderboard">
-                  <p className="hub-leader-title">Leaderboard</p>
+                  <p className="hub-leader-title">Top Players</p>
                   {leaderboard.map((entry, i) => (
                     <div key={entry.name} className="hub-leader-row">
                       <span className="hub-leader-medal">{medals[i] ?? `${i + 1}.`}</span>
                       <span className="hub-leader-name">{entry.name}</span>
-                      <span className="hub-leader-elo">N/A</span>
+                      <span className="hub-leader-elo">{entry.wins}W</span>
                     </div>
                   ))}
                 </div>
               ) : (
                 <p className="hub-no-data">No games played yet</p>
+              )}
+
+              {activeProfileId && (
+                <div className="hub-my-stats">
+                  <div className="hub-elo-row">
+                    <span className="hub-elo-label">180s</span>
+                    <span className="hub-elo-val">{my180s}</span>
+                  </div>
+                  <div className="hub-avg-row">
+                    <span className="hub-avg-label">Cricket MPV</span>
+                    <span className="hub-avg-val">{myMPV}</span>
+                  </div>
+                </div>
               )}
             </>
           )}
