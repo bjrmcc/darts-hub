@@ -213,11 +213,11 @@ function TrophyIcon() {
 /* ── Tile data ──────────────────────────────────────────── */
 
 const PLAY_TILES = [
-  { label: 'X01',              sub: 'Start at 501 or 301 and score down to exactly zero. Finish on a double or the bullseye.',                                                                                                         route: ROUTES.X01_SETUP,      Icon: DartIcon,     hero: true,  accent: 'red'    },
-  { label: 'Cricket',          sub: 'Close 15–20 and Bull, score on open numbers. Most points when all numbers are closed wins.',                                                                                                      route: ROUTES.CRICKET_SETUP,  Icon: CricketIcon,              accent: 'green'  },
-  { label: 'Around the Clock', sub: 'Hit 1 through 20 in order, then finish on Bull.',                                                                                                                                                route: ROUTES.ATC_SETUP,      Icon: ClockIcon,                accent: 'blue'   },
-  { label: 'First To',         sub: 'First player to hit the chosen number a set number of times wins.',                                                                                                                              route: ROUTES.FIRST_TO_SETUP, Icon: FlagIcon,                 accent: 'amber'  },
-  { label: 'Free Throw',       sub: 'No rules, no targets. Warm up or practise a specific shot.',                                                                                                                                     route: ROUTES.PRACTICE,       Icon: BullseyeIcon,             accent: 'purple' },
+  { label: 'X01',              sub: 'Count down from 501 or 301 to exactly zero. Your final dart must land on a double.',                                                      route: ROUTES.X01_SETUP,      Icon: DartIcon,     hero: true,  accent: 'red'    },
+  { label: 'Cricket',          sub: 'Open 15–20 and Bull by hitting each three times, then score on numbers your opponent hasn\'t opened yet.',                                route: ROUTES.CRICKET_SETUP,  Icon: CricketIcon,              accent: 'green'  },
+  { label: 'Around the Clock', sub: 'Hit 1 through 20 in order then finish on Bull. Doubles and trebles jump you ahead.',                                                      route: ROUTES.ATC_SETUP,      Icon: ClockIcon,                accent: 'blue'   },
+  { label: 'First To',         sub: 'Pick any number on the board and race to hit it the required times. Doubles and trebles count as 2 and 3.',                               route: ROUTES.FIRST_TO_SETUP, Icon: FlagIcon,                 accent: 'amber'  },
+  { label: 'Free Throw',       sub: 'No win condition — just throw and track your accuracy on any number.',                                                                    route: ROUTES.PRACTICE,       Icon: BullseyeIcon,             accent: 'purple' },
 ];
 
 type StatsTile = {
