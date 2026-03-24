@@ -49,14 +49,16 @@ function computeStats(history: GameResult[], profileId: string): OverallStats {
 
     const visits = rec.d1.length;
 
-    if (mode === 'x01') {
-      for (let i = 0; i < visits; i++) {
-        const score = (rec.d1[i] ?? 0) + (rec.d2[i] ?? 0) + (rec.d3[i] ?? 0);
-        if (score === 180) maxes++;
-        else if (score >= 140) bigTons++;
-        else if (score >= 100) tons++;
-      }
-    } else {
+    // High scores count across all game modes
+    for (let i = 0; i < visits; i++) {
+      const score = (rec.d1[i] ?? 0) + (rec.d2[i] ?? 0) + (rec.d3[i] ?? 0);
+      if (score === 180) maxes++;
+      else if (score >= 140) bigTons++;
+      else if (score >= 100) tons++;
+    }
+
+    // MPV counts only non-X01 modes
+    if (mode !== 'x01') {
       totalMarkVisits += visits;
       for (const arr of [rec.d1m ?? [], rec.d2m ?? [], rec.d3m ?? []] as number[][])
         for (const v of arr) totalMarks += v;
@@ -104,8 +106,8 @@ export default function StatsDetailScreen() {
           ) : (
             <div className="ss-body">
 
-              {/* X01 Scoring */}
-              <div className="ss-section-title">X01 Scoring</div>
+              {/* High Scores */}
+              <div className="ss-section-title">High Scores</div>
               <div className="ss-3cards">
                 <div className="ss-card ss-card--pop">
                   <span className="ss-card-label ss-card-label--bright">180s</span>

@@ -18,7 +18,6 @@ function compute180sLeaderboard(
     .map(p => {
       let maxes = 0;
       for (const g of history) {
-        if (g.gameMode !== 'x01') continue;
         const rec = (g.stats as GameStats).players.find(pl => pl.playerId === p.id);
         if (!rec) continue;
         for (let i = 0; i < rec.d1.length; i++)
@@ -34,7 +33,6 @@ function compute180sLeaderboard(
 function count180s(history: GameResult[], profileId: string): number {
   let total = 0;
   for (const g of history) {
-    if (g.gameMode !== 'x01') continue;
     const rec = (g.stats as GameStats).players.find(p => p.playerId === profileId);
     if (!rec) continue;
     for (let i = 0; i < rec.d1.length; i++) {

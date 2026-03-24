@@ -25,10 +25,9 @@ function compute(history: GameResult[], profiles: Profile[]): Entry[] {
       if (!e) continue;
       e.darts += (rec.d1m ?? []).length + (rec.d2m ?? []).length + (rec.d3m ?? []).length;
       const visits = rec.d1.length;
-      if (g.gameMode === 'x01') {
-        for (let i = 0; i < visits; i++)
-          if ((rec.d1[i] ?? 0) + (rec.d2[i] ?? 0) + (rec.d3[i] ?? 0) === 180) e.maxes++;
-      } else {
+      for (let i = 0; i < visits; i++)
+        if ((rec.d1[i] ?? 0) + (rec.d2[i] ?? 0) + (rec.d3[i] ?? 0) === 180) e.maxes++;
+      if (g.gameMode !== 'x01') {
         const ma = markAcc.get(rec.playerId)!;
         ma.visits += visits;
         for (const arr of [rec.d1m ?? [], rec.d2m ?? [], rec.d3m ?? []] as number[][])

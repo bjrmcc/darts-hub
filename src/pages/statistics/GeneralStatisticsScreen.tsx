@@ -50,13 +50,17 @@ function computeAll(history: GameResult[], profiles: Profile[]) {
       if (!main.has(pid)) continue;
       main.get(pid)!.darts += (rec.d1m ?? []).length + (rec.d2m ?? []).length + (rec.d3m ?? []).length;
       const visits = rec.d1.length;
+      // 180s count across all game modes
+      for (let i = 0; i < visits; i++)
+        if ((rec.d1[i] ?? 0) + (rec.d2[i] ?? 0) + (rec.d3[i] ?? 0) === 180)
+          main.get(pid)!.maxes++;
+
       if (g.gameMode === 'x01') {
         x01.get(pid)!.legs += 1;
         const xa = x01Acc.get(pid)!;
         for (let i = 0; i < visits; i++) {
           const s = (rec.d1[i] ?? 0) + (rec.d2[i] ?? 0) + (rec.d3[i] ?? 0);
           xa.score += s; xa.visits++;
-          if (s === 180) main.get(pid)!.maxes++;
         }
       } else {
         const ma = markAcc.get(pid)!;
