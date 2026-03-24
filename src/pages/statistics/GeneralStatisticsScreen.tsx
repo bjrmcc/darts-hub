@@ -174,7 +174,7 @@ export default function GeneralStatisticsScreen() {
             onClick={() => goto(ROUTES.STATS_DETAIL, { state: { leaderboard: true } })}
           >
             <div className="ldb-mode-title ldb-mode-title--overall">
-              Overall Rankings
+              Overall Leaderboard
               <span className="ldb-overall-preview-tap">Full stats →</span>
             </div>
             <div className="ldb-overall-preview-head">
