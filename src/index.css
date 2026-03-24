@@ -7270,7 +7270,7 @@ button.secondary:hover {
   }
   .cricket-board-side {
     flex: none;
-    height: calc(100dvh - var(--nav-h));
+    height: 68dvh;
   }
   .chalkboard {
     width: 100%;
