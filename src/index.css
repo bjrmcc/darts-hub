@@ -7250,9 +7250,33 @@ button.secondary:hover {
     height: calc(100dvh - 52px);
   }
 
-  /* Narrow chalkboard → dartboard gets more horizontal room */
+  /* Stacked layout — chalkboard sits below the board */
+  .cricket-screen {
+    height: auto;
+    min-height: calc(100dvh - 52px);
+    overflow-y: auto;
+  }
+  .cricket-main {
+    flex-direction: column;
+  }
+  .cricket-board-side {
+    height: calc(100dvh - 52px);
+    flex-shrink: 0;
+  }
   .chalkboard {
-    width: 44%;
+    width: 100%;
+    border-left: none;
+    border-top: 3px solid #2a2a2a;
+    overflow: visible;
+    padding: 0.75rem;
+  }
+  /* Win overlay covers the visible viewport on mobile (layout can scroll) */
+  .win-overlay {
+    position: fixed;
+    top: 52px;
+    bottom: 0;
+    left: 0;
+    right: 0;
   }
 
   /* Info strip — more compact so dartboard takes more vertical space */
@@ -7295,10 +7319,10 @@ button.secondary:hover {
 /* ── Narrow phones (≤ 480px) ── */
 @media (max-width: 480px) {
 
-  /* Chalkboard as narrow as it can go while remaining readable */
+  /* Chalkboard full-width in stacked layout */
   .chalkboard {
-    width: 37%;
-    padding: 0.4rem 0.3rem;
+    width: 100%;
+    padding: 0.75rem 0.5rem;
   }
 
   /* Cricket chalkboard — tighter rows, smaller marks */
