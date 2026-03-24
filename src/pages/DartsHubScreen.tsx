@@ -10,14 +10,24 @@ import type { Profile } from '../types';
 
 /* ── Stats helpers ───────────────────────────────────────── */
 
-function computeWinsLeaderboard(
+function compute180sLeaderboard(
   history: GameResult[],
   profiles: Profile[],
-): { name: string; wins: number }[] {
+): { name: string; maxes: number }[] {
   return profiles
-    .map(p => ({ name: p.name, wins: history.filter(g => g.winnerId === p.id).length }))
-    .filter(p => p.wins > 0)
-    .sort((a, b) => b.wins - a.wins)
+    .map(p => {
+      let maxes = 0;
+      for (const g of history) {
+        if (g.gameMode !== 'x01') continue;
+        const rec = (g.stats as GameStats).players.find(pl => pl.playerId === p.id);
+        if (!rec) continue;
+        for (let i = 0; i < rec.d1.length; i++)
+          if ((rec.d1[i] ?? 0) + (rec.d2[i] ?? 0) + (rec.d3[i] ?? 0) === 180) maxes++;
+      }
+      return { name: p.name, maxes };
+    })
+    .filter(p => p.maxes > 0)
+    .sort((a, b) => b.maxes - a.maxes)
     .slice(0, 3);
 }
 
@@ -207,7 +217,7 @@ function generateFeedItems(history: GameResult[], profiles: Profile[]): FeedItem
   }
 
   // ── Current leaderboard snapshot
-  const leaderboard = computeWinsLeaderboard(history, profiles);
+  const leaderboard = compute180sLeaderboard(history, profiles);
   if (leaderboard.length >= 2) {
     const top = leaderboard
       .slice(0, 3)
@@ -308,7 +318,7 @@ export default function DartsHubScreen() {
 
   const my180s = activeProfileId ? count180s(history, activeProfileId) : 0;
   const myMPV = activeProfileId ? computeMPV(history, activeProfileId) : '—';
-  const leaderboard = computeWinsLeaderboard(history, profiles);
+  const leaderboard = compute180sLeaderboard(history, profiles);
   const feedItems = generateFeedItems(history, profiles);
 
   const medals = ['🥇', '🥈', '🥉'];
@@ -378,7 +388,7 @@ export default function DartsHubScreen() {
                     <div key={entry.name} className="hub-leader-row">
                       <span className="hub-leader-medal">{medals[i] ?? `${i + 1}.`}</span>
                       <span className="hub-leader-name">{entry.name}</span>
-                      <span className="hub-leader-elo">{entry.wins}W</span>
+                      <span className="hub-leader-elo">{entry.maxes}</span>
                     </div>
                   ))}
                 </div>
