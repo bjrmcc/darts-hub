@@ -157,6 +157,7 @@ function ChangeUsernameSection({ profileId, currentName, passwordHash }: {
         className="settings-input"
         type="password"
         placeholder="Your password"
+        autoComplete="new-password"
         value={password}
         onChange={e => { setPassword(e.target.value); setError(''); }}
         onKeyDown={e => e.key === 'Enter' && handleSubmit()}
