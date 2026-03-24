@@ -1,4 +1,4 @@
-import { useState, useRef, useEffect } from 'react';
+import { useState, useRef, useEffect, useMemo } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { useGameTurn, type TurnSnapshot } from '../../../hooks/useGameTurn';
 import GameBoard, { type DartHit } from '../../../components/dartboard/GameBoard';
@@ -8,6 +8,8 @@ import WinOverlay from '../../../components/shared/WinOverlay';
 import { useStatisticsStore } from '../../../store/statisticsStore';
 import { buildGameStats } from '../../../utils/buildGameStats';
 import { useGameSessionStore } from '../../../store/gameSessionStore';
+import { cpuProfileFromDifficulty, simulateDart, aimFirstTo } from '../../../utils/cpuPlayer';
+import { useCpuTurn } from '../../../hooks/useCpuTurn';
 
 // Fewer players = wider columns = more groups of 5 fit per row
 function groupsPerRow(playerCount: number): number {
@@ -50,9 +52,19 @@ export default function FirstToGameScreen() {
   const { state } = useLocation();
   const navigate = useNavigate();
 
-  const players: Profile[] = state?.players ?? [];
+  const mode: string = state?.mode ?? 'players';
+  const difficulty: number = state?.difficulty ?? 15;
   const targetNumber: number = state?.targetNumber ?? 20;
   const targetHits: number = state?.targetHits ?? 10;
+
+  const CPU_PLAYER: Profile = useMemo(() => ({ id: 'cpu', name: 'CPU', createdAt: 0 }), []);
+  const players: Profile[] = useMemo(() => {
+    const base: Profile[] = state?.players ?? [];
+    return mode === 'cpu' ? [...base, CPU_PLAYER] : base;
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  const cpuProfile = useMemo(() => cpuProfileFromDifficulty(difficulty), [difficulty]);
 
   const playerNames = players.map((p) => p.name);
   interface FTSnap { turn: TurnSnapshot; hits: number[]; }
@@ -100,6 +112,14 @@ export default function FirstToGameScreen() {
     setHits(prev.hits);
     setCanUndo(snapshotsRef.current.length > 0);
   }
+
+  const isCpuTurn = mode === 'cpu' && currentPlayer === 'CPU' && !winner;
+  useCpuTurn(isCpuTurn, dartIndex, () => {
+    const aim = aimFirstTo(targetNumber);
+    const result = simulateDart(aim, cpuProfile);
+    if (result === 'miss') { pushSnapshot(hits); throwMiss(); }
+    else handleHit(result);
+  }, cpuProfile.dartDelayMs);
 
   const perRow = groupsPerRow(players.length);
 

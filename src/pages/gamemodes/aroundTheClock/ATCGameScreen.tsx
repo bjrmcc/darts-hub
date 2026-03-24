@@ -1,4 +1,4 @@
-import { useState, useRef, useEffect } from 'react';
+import { useState, useRef, useEffect, useMemo } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { useGameTurn, type TurnSnapshot } from '../../../hooks/useGameTurn';
 import GameBoard, { type DartHit } from '../../../components/dartboard/GameBoard';
@@ -8,6 +8,8 @@ import WinOverlay from '../../../components/shared/WinOverlay';
 import { useStatisticsStore } from '../../../store/statisticsStore';
 import { buildGameStats } from '../../../utils/buildGameStats';
 import { useGameSessionStore } from '../../../store/gameSessionStore';
+import { cpuProfileFromDifficulty, simulateDart, aimATC } from '../../../utils/cpuPlayer';
+import { useCpuTurn } from '../../../hooks/useCpuTurn';
 
 interface SeqItem {
   number: number;
@@ -31,9 +33,19 @@ export default function ATCGameScreen() {
   const { state } = useLocation();
   const navigate = useNavigate();
 
-  const players: Profile[] = state?.players ?? [];
+  const mode: string = state?.mode ?? 'players';
+  const difficulty: number = state?.difficulty ?? 15;
   const trebleDoubles: boolean = state?.trebleDoubles ?? false;
   const bullOut: boolean = state?.bullOut ?? true;
+
+  const CPU_PLAYER: Profile = useMemo(() => ({ id: 'cpu', name: 'CPU', createdAt: 0 }), []);
+  const players: Profile[] = useMemo(() => {
+    const base: Profile[] = state?.players ?? [];
+    return mode === 'cpu' ? [...base, CPU_PLAYER] : base;
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  const cpuProfile = useMemo(() => cpuProfileFromDifficulty(difficulty), [difficulty]);
 
   const playerNames = players.map((p) => p.name);
 
@@ -86,6 +98,19 @@ export default function ATCGameScreen() {
     setProgress(prev.progress);
     setCanUndo(snapshotsRef.current.length > 0);
   }
+
+  const isCpuTurn = mode === 'cpu' && currentPlayer === 'CPU' && !winner;
+  useCpuTurn(isCpuTurn, dartIndex, () => {
+    const cpuIndex = players.findIndex((p) => p.name === 'CPU');
+    const seq = cpuIndex >= 0 ? sequences[cpuIndex] : [];
+    const currentProgress = cpuIndex >= 0 ? progress[cpuIndex] : 0;
+    const item = seq[currentProgress];
+    if (!item) return;
+    const aim = aimATC(item.number, item.requiredMult, trebleDoubles);
+    const result = simulateDart(aim, cpuProfile);
+    if (result === 'miss') { pushSnapshot(progress); throwMiss(); }
+    else handleHit(result);
+  }, cpuProfile.dartDelayMs);
 
   function handleHit(hit: DartHit) {
     pushSnapshot(progress);

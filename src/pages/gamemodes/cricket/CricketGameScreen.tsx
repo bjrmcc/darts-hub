@@ -1,4 +1,4 @@
-import { useState, useRef, useEffect } from 'react';
+import { useState, useRef, useEffect, useMemo } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { useGameTurn, type TurnSnapshot } from '../../../hooks/useGameTurn';
 import GameBoard, { type DartHit } from '../../../components/dartboard/GameBoard';
@@ -8,6 +8,8 @@ import WinOverlay from '../../../components/shared/WinOverlay';
 import { useStatisticsStore } from '../../../store/statisticsStore';
 import { buildGameStats } from '../../../utils/buildGameStats';
 import { useGameSessionStore } from '../../../store/gameSessionStore';
+import { cpuProfileFromDifficulty, simulateDart, aimCricket } from '../../../utils/cpuPlayer';
+import { useCpuTurn } from '../../../hooks/useCpuTurn';
 
 const CRICKET_NUMS = [20, 19, 18, 17, 16, 15, 25] as const;
 type CricketNum = (typeof CRICKET_NUMS)[number];
@@ -77,8 +79,19 @@ export default function CricketGameScreen() {
   const { state } = useLocation();
   const navigate = useNavigate();
 
-  const team1: Profile[] = state?.team1 ?? [];
-  const team2: Profile[] = state?.team2 ?? [];
+  const mode: string = state?.mode ?? 'players';
+  const difficulty: number = state?.difficulty ?? 15;
+
+  const CPU_PLAYER: Profile = useMemo(() => ({ id: 'cpu', name: 'CPU', createdAt: 0 }), []);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  const team1: Profile[] = useMemo(() => state?.team1 ?? [], []);
+  const team2: Profile[] = useMemo(() => {
+    const base: Profile[] = state?.team2 ?? [];
+    return mode === 'cpu' ? [...base, CPU_PLAYER] : base;
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  const cpuProfile = useMemo(() => cpuProfileFromDifficulty(difficulty), [difficulty]);
 
   const maxLen = Math.max(team1.length, team2.length);
   const playerNames: string[] = [];
@@ -163,6 +176,14 @@ export default function CricketGameScreen() {
     pushSnapshot(cricket);
     throwMiss();
   }
+
+  const isCpuTurn = mode === 'cpu' && currentTeam === 'team2' && !winner;
+  useCpuTurn(isCpuTurn, dartIndex, () => {
+    const aim = aimCricket(cricket.marks, 'team2');
+    const result = simulateDart(aim, cpuProfile);
+    if (result === 'miss') handleMiss();
+    else handleHit(result);
+  }, cpuProfile.dartDelayMs);
 
   return (
     <div className="cricket-screen">
