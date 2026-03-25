@@ -6,6 +6,7 @@ import RequireProfile from './components/shared/RequireProfile';
 import LoadingScreen from './components/shared/LoadingScreen';
 import ErrorToast from './components/shared/ErrorToast';
 import FullscreenManager from './components/shared/FullscreenManager';
+import ScrollToTop from './components/shared/ScrollToTop';
 import ErrorBoundary from './components/shared/ErrorBoundary';
 import { useTransitionStore } from './store/transitionStore';
 import { useProfilesStore } from './store/profilesStore';
@@ -98,6 +99,7 @@ export default function App() {
     <ErrorBoundary>
     <BrowserRouter>
       <DataBootstrap />
+      <ScrollToTop />
       <Header />
       <ErrorToast />
       <FullscreenManager />
