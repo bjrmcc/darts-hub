@@ -7328,6 +7328,101 @@ button.secondary:hover {
     padding: 0.6rem 1rem;
     font-size: 0.9rem;
   }
+
+  /* ── Admin panel ── */
+
+  /* Tabs — taller tap targets */
+  .adm-tab {
+    padding: 0.9rem 0.5rem;
+    font-size: 0.82rem;
+  }
+
+  /* Back button — legible and tappable */
+  .adm-back-btn {
+    font-size: 0.82rem;
+    padding: 0.5rem 0.9rem;
+    min-height: 36px;
+  }
+
+  /* Profile card actions move below the info row */
+  .adm-profile-row {
+    flex-wrap: wrap;
+    gap: 0.6rem;
+  }
+  .adm-profile-info {
+    /* take remaining width beside avatar */
+    min-width: 0;
+  }
+  .adm-profile-actions {
+    width: 100%;
+    padding: 0 0 0.5rem 3.15rem; /* indent to align with name (avatar width + gap) */
+    gap: 0.5rem;
+  }
+  .adm-action-btn,
+  .adm-danger-btn {
+    font-size: 0.78rem;
+    padding: 0.5rem 0.85rem;
+    min-height: 36px;
+  }
+  .adm-confirm-row {
+    width: 100%;
+    gap: 0.5rem;
+  }
+
+  /* Game rows — wrap so delete sits on its own line */
+  .adm-game-row {
+    flex-wrap: wrap;
+    gap: 0.5rem 0.55rem;
+    padding: 0.65rem 0.75rem;
+  }
+  .adm-game-info {
+    /* take all remaining space in first line */
+    flex-basis: 0;
+    flex-grow: 1;
+  }
+  .adm-game-row > .adm-danger-btn,
+  .adm-game-row > .adm-confirm-row {
+    width: 100%;
+  }
+  .adm-game-row > .adm-confirm-row .adm-danger-btn,
+  .adm-game-row > .adm-confirm-row .adm-action-btn {
+    flex: 1;
+    justify-content: center;
+    text-align: center;
+  }
+
+  /* Filter pills — bigger tap area */
+  .adm-filter-pill {
+    font-size: 0.72rem;
+    padding: 0.4rem 0.75rem;
+    min-height: 32px;
+  }
+
+  /* Export / repair banners — stack on small screens */
+  .adm-export-banner,
+  .adm-repair-banner {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.6rem;
+  }
+  .adm-export-btn,
+  .adm-repair-btn {
+    width: 100%;
+    padding: 0.55rem 1rem;
+    font-size: 0.8rem;
+    text-align: center;
+    min-height: 36px;
+  }
+
+  /* Save password button — full width */
+  .adm-save-btn {
+    width: 100%;
+    align-self: stretch;
+    padding: 0.55rem 1rem;
+    font-size: 0.8rem;
+    min-height: 36px;
+    text-align: center;
+  }
 }
 
 /* ── Narrow phones (≤ 480px) ── */
