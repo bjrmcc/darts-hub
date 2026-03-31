@@ -7682,6 +7682,12 @@ button.secondary:hover {
     padding: 0;
     display: flex;
     flex-direction: column;
+    justify-content: center;
+  }
+
+  /* Non-stacked previews (Overall 4-col, Leaderboard rows) keep padding */
+  .home-tile--stat .home-tile-preview > :not(.htp-cols--2) {
+    padding: 0.6rem 0.75rem;
   }
 
   /* Each stat occupies its half, content centred */

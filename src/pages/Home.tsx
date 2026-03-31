@@ -32,7 +32,7 @@ function computeLeaderboard(
     .map(p => ({ name: p.name, avg: multAvg(p.mults) }))
     .filter(p => p.avg !== '—')
     .sort((a, b) => parseFloat(b.avg) - parseFloat(a.avg))
-    .slice(0, 3);
+    .slice(0, 5);
 }
 
 function computeModeMpv(
@@ -165,18 +165,22 @@ function ModeMpvPreview({ mpv }: { mpv: string }) {
 }
 
 
+const LEADER_COUNT = 5;
+const MEDALS = ['🥇', '🥈', '🥉'];
+
 function LeaderPreview({ entries }: { entries: LeaderEntry[] }) {
-  if (!entries.length) {
-    return <div className="home-tile-preview htp-empty">No data yet</div>;
-  }
-  const medals = ['🥇', '🥈', '🥉'];
+  const padded = [
+    ...entries.slice(0, LEADER_COUNT),
+    ...Array(Math.max(0, LEADER_COUNT - entries.length)).fill(null),
+  ] as (LeaderEntry | null)[];
+
   return (
     <div className="home-tile-preview">
-      {entries.map((e, i) => (
-        <div key={e.name} className="htp-leader-row">
-          <span className="htp-medal">{medals[i]}</span>
-          <span className="htp-leader-name">{e.name}</span>
-          <span className="htp-leader-avg">{e.avg}</span>
+      {padded.map((e, i) => (
+        <div key={e?.name ?? `empty-${i}`} className="htp-leader-row">
+          <span className="htp-medal">{MEDALS[i] ?? String(i + 1)}</span>
+          <span className="htp-leader-name">{e?.name ?? 'N/A'}</span>
+          <span className="htp-leader-avg">{e?.avg ?? '—'}</span>
         </div>
       ))}
     </div>
