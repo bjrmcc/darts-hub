@@ -7672,6 +7672,36 @@ button.secondary:hover {
   /* X01: 3DA on top, Checkout % below */
   .htp-cols--2 {
     grid-template-columns: 1fr;
+    grid-template-rows: 1fr 1fr;
+    height: 100%;
+  }
+
+  /* Preview section stretches to fill remaining tile height */
+  .home-tile--stat .home-tile-preview {
+    flex: 1;
+    padding: 0;
+    display: flex;
+    flex-direction: column;
+  }
+
+  /* Each stat occupies its half, content centred */
+  .home-tile--stat .htp-cols--2 {
+    flex: 1;
+  }
+
+  .home-tile--stat .htp-cols--2 .htp-col {
+    justify-content: center;
+    padding: 0.6rem 0.7rem;
+    border-bottom: 1px solid var(--ac-border, #1c1c1c);
+  }
+
+  .home-tile--stat .htp-cols--2 .htp-col:last-child {
+    border-bottom: none;
+  }
+
+  /* Give the Cricket/ATC/First To tiles enough height to show both halves */
+  .home-grid--3col .home-tile--stat {
+    min-height: 160px;
   }
 
   /* ── Stat preview cards — stack vertically on mobile ─────── */
