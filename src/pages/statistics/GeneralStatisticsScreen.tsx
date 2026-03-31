@@ -160,6 +160,21 @@ export default function GeneralStatisticsScreen() {
   const f2 = (v: number|null) => v !== null ? v.toFixed(2) : '—';
   const f1 = (v: number|null) => v !== null ? v.toFixed(1) : '—';
 
+  // Pad overall to top 5, mode lists to top 1
+  const OVERALL_COUNT = 5;
+  const paddedMain = [
+    ...mainList.slice(0, OVERALL_COUNT),
+    ...Array(Math.max(0, OVERALL_COUNT - mainList.length)).fill(null),
+  ] as (MainEntry | null)[];
+
+  function topOne<T extends { name: string }>(
+    list: T[],
+    mapper: (e: T) => { name: string; val: string; sub?: string },
+  ): { name: string; val: string; sub?: string }[] {
+    if (list.length === 0) return [{ name: 'N/A', val: '—' }];
+    return [mapper(list[0])];
+  }
+
   return (
     <div className="ldb-screen">
 
@@ -188,21 +203,17 @@ export default function GeneralStatisticsScreen() {
               <span>Darts</span>
             </div>
             <div className="ldb-mode-rows">
-              {mainList.length === 0 ? (
-                <div className="ldb-empty">No games recorded yet</div>
-              ) : (
-                mainList.map((e, i) => (
-                  <div key={e.id} className="ldb-overall-preview-row">
-                    <RankCell i={i} />
-                    <span className="ldb-mode-name">{e.name}</span>
-                    <span className="ldb-mode-val ldb-overall-val--180">{e.maxes || '—'}</span>
-                    <span className="ldb-mode-val ldb-overall-val--mpv">{f2(e.mpv)}</span>
-                    <span className="ldb-mode-val ldb-overall-val--dim">
-                      {e.darts > 0 ? e.darts.toLocaleString() : '—'}
-                    </span>
-                  </div>
-                ))
-              )}
+              {paddedMain.map((e, i) => (
+                <div key={e?.id ?? `empty-${i}`} className="ldb-overall-preview-row">
+                  <RankCell i={i} />
+                  <span className="ldb-mode-name">{e?.name ?? 'N/A'}</span>
+                  <span className="ldb-mode-val ldb-overall-val--180">{e ? (e.maxes || '—') : '—'}</span>
+                  <span className="ldb-mode-val ldb-overall-val--mpv">{e ? f2(e.mpv) : '—'}</span>
+                  <span className="ldb-mode-val ldb-overall-val--dim">
+                    {e ? (e.darts > 0 ? e.darts.toLocaleString() : '—') : '—'}
+                  </span>
+                </div>
+              ))}
             </div>
           </button>
 
@@ -213,25 +224,25 @@ export default function GeneralStatisticsScreen() {
               <ModeLdbCard
                 title="X01 · 3-Dart Avg"
                 accent="x01"
-                rows={x01List.map(e => ({ name: e.name, val: f2(e.avg), sub: `${e.legs}L` }))}
+                rows={topOne(x01List, e => ({ name: e.name, val: f2(e.avg), sub: `${e.legs}L` }))}
                 onClick={() => goto(ROUTES.STATS_X01, { state: { leaderboard: true } })}
               />
               <ModeLdbCard
                 title="Cricket · MPV"
                 accent="crk"
-                rows={crkList.map(e => ({ name: e.name, val: f2(e.mpv), sub: `${e.games}G` }))}
+                rows={topOne(crkList, e => ({ name: e.name, val: f2(e.mpv), sub: `${e.games}G` }))}
                 onClick={() => goto(ROUTES.STATS_CRICKET, { state: { leaderboard: true } })}
               />
               <ModeLdbCard
                 title="ATC · Visit Avg"
                 accent="atc"
-                rows={atcList.map(e => ({ name: e.name, val: f1(e.visitAvg), sub: `${e.games}G` }))}
+                rows={topOne(atcList, e => ({ name: e.name, val: f1(e.visitAvg), sub: `${e.games}G` }))}
                 onClick={() => goto(ROUTES.STATS_ATC, { state: { leaderboard: true } })}
               />
               <ModeLdbCard
                 title="First To · MPV"
                 accent="ft"
-                rows={ftList.map(e => ({ name: e.name, val: f2(e.mpv), sub: `${e.games}G` }))}
+                rows={topOne(ftList, e => ({ name: e.name, val: f2(e.mpv), sub: `${e.games}G` }))}
                 onClick={() => goto(ROUTES.STATS_FIRST_TO, { state: { leaderboard: true } })}
               />
             </div>
