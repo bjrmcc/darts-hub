@@ -7665,6 +7665,47 @@ button.secondary:hover {
   }
   .ldb-overall-head > span:last-child,
   .ldb-full-row--5col > span:last-child { display: none; }
+
+  /* ── Home stat tile previews — stack vertically on mobile ── */
+
+  /* Cricket / ATC / First To: MPV on top, ELO below */
+  /* X01: 3DA on top, Checkout % below */
+  .htp-cols--2 {
+    grid-template-columns: 1fr;
+  }
+
+  /* ── Stat preview cards — stack vertically on mobile ─────── */
+
+  /* Allow stat pages to scroll so stacked content isn't clipped */
+  .ss-page {
+    max-height: none;
+    overflow-y: auto;
+    width: 100%;
+    margin: 0;
+    border-radius: 0;
+    border-left: none;
+    border-right: none;
+  }
+
+  /* ELO card: stat info on top, chart below */
+  .ss-elo-card {
+    flex-direction: column;
+    align-items: stretch;
+  }
+  .ss-elo-left {
+    min-width: unset;
+    flex-shrink: unset;
+  }
+  .ss-elo-chart {
+    flex: none;
+    height: 80px;
+    width: 100%;
+  }
+
+  /* Stat cards grid — single column so second card sits below first */
+  .ss-cards {
+    grid-template-columns: 1fr;
+  }
 }
 
 /* ── Narrow phones (≤ 480px) ──────────────────────────────── */
