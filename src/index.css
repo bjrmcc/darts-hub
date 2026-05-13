@@ -5239,7 +5239,7 @@ button.secondary:hover {
 .settings-page {
   display: flex;
   justify-content: center;
-  padding: 1.5rem 1rem 3rem;
+  padding: calc(var(--nav-h) + 1.5rem) 1rem 3rem;
   min-height: calc(100dvh - var(--nav-h));
   overflow-y: auto;
 }
