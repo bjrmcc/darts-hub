@@ -74,8 +74,8 @@ import ATCResultScreen from './pages/gamemodes/aroundTheClock/ATCResultScreen';
 import FirstToSetupScreen from './pages/gamemodes/firstTo/FirstToSetupScreen';
 import FirstToGameScreen from './pages/gamemodes/firstTo/FirstToGameScreen';
 import FirstToResultScreen from './pages/gamemodes/firstTo/FirstToResultScreen';
-import PracticeScreen from './pages/gamemodes/practice/PracticeScreen';
-import FreeThrowGameScreen from './pages/gamemodes/practice/FreeThrowGameScreen';
+import InARowSetupScreen from './pages/gamemodes/inARow/InARowSetupScreen';
+import InARowGameScreen from './pages/gamemodes/inARow/InARowGameScreen';
 import StatisticsScreen from './pages/statistics/StatisticsScreen';
 import PersonalStatisticsScreen from './pages/statistics/PersonalStatisticsScreen';
 import GeneralStatisticsScreen from './pages/statistics/GeneralStatisticsScreen';
@@ -85,7 +85,7 @@ import GeneralProgressScreen from './pages/progress/GeneralProgressScreen';
 import LeaderboardScreen from './pages/leaderboard/LeaderboardScreen';
 import X01StatsScreen from './pages/statistics/X01StatsScreen';
 import CricketStatsScreen from './pages/statistics/CricketStatsScreen';
-import FreeThrowStatsScreen from './pages/statistics/FreeThrowStatsScreen';
+import InARowStatsScreen from './pages/statistics/InARowStatsScreen';
 import GamemodesLeaderboardScreen from './pages/statistics/GamemodesLeaderboardScreen';
 import FirstToStatsScreen from './pages/statistics/FirstToStatsScreen';
 import ATCStatsScreen from './pages/statistics/ATCStatsScreen';
@@ -127,8 +127,8 @@ export default function App() {
         <Route path={ROUTES.FIRST_TO_SETUP} element={<RequireProfile><FirstToSetupScreen /></RequireProfile>} />
         <Route path={ROUTES.FIRST_TO_GAME} element={<RequireProfile><FirstToGameScreen /></RequireProfile>} />
         <Route path={ROUTES.FIRST_TO_RESULT} element={<RequireProfile><FirstToResultScreen /></RequireProfile>} />
-        <Route path={ROUTES.PRACTICE} element={<RequireProfile><PracticeScreen /></RequireProfile>} />
-        <Route path={ROUTES.FREE_THROW_GAME} element={<RequireProfile><FreeThrowGameScreen /></RequireProfile>} />
+        <Route path={ROUTES.IN_A_ROW_SETUP} element={<RequireProfile><InARowSetupScreen /></RequireProfile>} />
+        <Route path={ROUTES.IN_A_ROW_GAME} element={<RequireProfile><InARowGameScreen /></RequireProfile>} />
         <Route path={ROUTES.STATISTICS} element={<RequireProfile><StatisticsScreen /></RequireProfile>} />
         <Route path={ROUTES.STATISTICS_PERSONAL} element={<RequireProfile><PersonalStatisticsScreen /></RequireProfile>} />
         <Route path={ROUTES.STATISTICS_GENERAL} element={<RequireProfile><GeneralStatisticsScreen /></RequireProfile>} />
@@ -143,7 +143,7 @@ export default function App() {
         <Route path={ROUTES.STATS_CRICKET} element={<RequireProfile><CricketStatsScreen /></RequireProfile>} />
         <Route path={ROUTES.STATS_ATC} element={<RequireProfile><ATCStatsScreen /></RequireProfile>} />
         <Route path={ROUTES.STATS_FIRST_TO} element={<RequireProfile><FirstToStatsScreen /></RequireProfile>} />
-        <Route path={ROUTES.STATS_FREE_THROW} element={<RequireProfile><FreeThrowStatsScreen /></RequireProfile>} />
+        <Route path={ROUTES.STATS_IN_A_ROW} element={<RequireProfile><InARowStatsScreen /></RequireProfile>} />
         <Route path={ROUTES.STATS_DETAIL} element={<RequireProfile><StatsDetailScreen /></RequireProfile>} />
       </Routes>
     </BrowserRouter>

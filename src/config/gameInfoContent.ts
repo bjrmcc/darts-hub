@@ -175,31 +175,40 @@ export const GAME_INFO: Record<string, GameInfoContent> = {
     ],
   },
 
-  freeThrow: {
-    title: 'Free Throw',
+  inARow: {
+    title: 'In a Row',
     accent: 'purple',
     sections: [
       {
-        heading: 'How it works',
+        heading: 'Objective',
         bullets: [
-          'No win condition, no pressure — just throw and track your accuracy.',
-          'Select a target number, throw your darts, and your hit rate is recorded automatically.',
-          'Stats break down by single, double, and treble hit rate per number over time.',
+          'Choose a target number and a set number of visits. Hit the target as many times as you can before your visits run out.',
+          'The player with the most hits at the end wins.',
+          'Doubles count as 2 hits, trebles as 3.',
+        ],
+      },
+      {
+        heading: 'Streak extension',
+        bullets: [
+          'If you end your last visit while on a consecutive hit streak, you earn bonus visits.',
+          'You keep playing until you end a visit with your streak broken (last dart was a miss).',
+          'Use this to push your score beyond the visit limit if you\'re throwing well.',
         ],
       },
       {
         heading: 'Inputting scores',
         bullets: [
-          'Select a target number from the panel, then tap the segment you hit after each dart.',
-          'Tap Miss for darts that miss or land on the wrong number.',
-          'Use Undo ↩ to correct the last dart. You can switch target numbers mid-session.',
+          'Tap the segment you hit after each dart.',
+          'Only hits on your chosen target number count — everything else is ignored.',
+          'Tap Miss for darts that miss the board. Use Undo ↩ to correct the last dart.',
         ],
       },
       {
         heading: 'Tips',
         bullets: [
-          'Use it to warm up before a match or drill a specific checkout number.',
-          'Check your Free Throw stats to see which numbers you\'re most and least accurate on.',
+          'Trebles score 3 hits in one dart — aim for the thin inner ring on your target.',
+          'More visits = longer game and higher scores. Start with 10 to get a feel for it.',
+          'Keep your streak alive going into your final visit to earn the extension.',
         ],
       },
     ],

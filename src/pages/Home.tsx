@@ -221,7 +221,7 @@ const PLAY_TILES = [
   { label: 'Cricket',          sub: 'Open 15–20 and Bull by hitting each three times, then score on numbers your opponent hasn\'t opened yet.',                                route: ROUTES.CRICKET_SETUP,  Icon: CricketIcon,              accent: 'green'  },
   { label: 'Around the Clock', sub: 'Hit 1 through 20 in order then finish on Bull. Doubles and trebles jump you ahead.',                                                      route: ROUTES.ATC_SETUP,      Icon: ClockIcon,                accent: 'blue'   },
   { label: 'First To',         sub: 'Pick any number on the board and race to hit it the required times. Doubles and trebles count as 2 and 3.',                               route: ROUTES.FIRST_TO_SETUP, Icon: FlagIcon,                 accent: 'amber'  },
-  { label: 'Free Throw',       sub: 'No win condition — just throw and track your accuracy on any number.',                                                                    route: ROUTES.PRACTICE,       Icon: BullseyeIcon,             accent: 'purple' },
+  { label: 'In a Row',         sub: 'Pick a target number and a visit count. Hit it as many times as you can — extend your game if you\'re on a streak.',                     route: ROUTES.IN_A_ROW_SETUP, Icon: BullseyeIcon,             accent: 'purple' },
 ];
 
 type StatsTile = {

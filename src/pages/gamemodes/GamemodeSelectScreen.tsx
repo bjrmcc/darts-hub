@@ -11,7 +11,7 @@ export default function GamemodeSelectScreen() {
       <button onClick={() => goto(ROUTES.CRICKET_SETUP)}>Cricket</button>
       <button onClick={() => goto(ROUTES.ATC_SETUP)}>Around the Clock</button>
       <button onClick={() => goto(ROUTES.FIRST_TO_SETUP)}>First To</button>
-      <button onClick={() => goto(ROUTES.PRACTICE)}>Free Throw</button>
+      <button onClick={() => goto(ROUTES.IN_A_ROW_SETUP)}>In a Row</button>
       <button onClick={() => goto(ROUTES.PLAY)}>Back</button>
     </div>
   );

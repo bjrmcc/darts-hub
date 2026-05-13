@@ -12,7 +12,7 @@ export default function PersonalStatisticsScreen() {
         <button onClick={() => goto(ROUTES.STATS_CRICKET)}>Cricket</button>
         <button onClick={() => goto(ROUTES.STATS_ATC)}>Around the Clock</button>
         <button onClick={() => goto(ROUTES.STATS_FIRST_TO)}>First To</button>
-        <button onClick={() => goto(ROUTES.STATS_FREE_THROW)}>Free Throw</button>
+        <button onClick={() => goto(ROUTES.STATS_IN_A_ROW)}>In a Row</button>
         <button onClick={() => goto(ROUTES.PROGRESS)}>Progress</button>
       </nav>
       <button className="secondary" onClick={() => goto(ROUTES.STATISTICS)}>Back</button>

@@ -14,16 +14,16 @@ const GAME_MODES = [
   { key: 'cricket',       label: 'Cricket' },
   { key: 'aroundTheClock',label: 'Around the Clock' },
   { key: 'firstTo',       label: 'First To' },
-  { key: 'practice',      label: 'Free Throw' },
+  { key: 'inARow',        label: 'In a Row' },
 ] as const;
 
 type ModeKey = typeof GAME_MODES[number]['key'];
 
 const MODE_SHORT: Record<string, string> = {
-  x01: 'X01', cricket: 'CRK', aroundTheClock: 'ATC', firstTo: 'FT', practice: 'FRE',
+  x01: 'X01', cricket: 'CRK', aroundTheClock: 'ATC', firstTo: 'FT', inARow: 'IAR',
 };
 const MODE_ACCENT: Record<string, string> = {
-  x01: 'red', cricket: 'green', aroundTheClock: 'blue', firstTo: 'amber', practice: 'purple',
+  x01: 'red', cricket: 'green', aroundTheClock: 'blue', firstTo: 'amber', inARow: 'purple',
 };
 
 function fmtDate(ts: number) {

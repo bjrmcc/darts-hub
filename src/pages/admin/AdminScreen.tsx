@@ -10,12 +10,12 @@ import type { GameStats, Profile } from '../../types';
 /* ── Helpers ─────────────────────────────────────────────── */
 
 const MODE_SHORT: Record<string, string> = {
-  x01: 'X01', cricket: 'CRK', aroundTheClock: 'ATC', firstTo: 'FT', practice: 'FRE',
+  x01: 'X01', cricket: 'CRK', aroundTheClock: 'ATC', firstTo: 'FT', inARow: 'IAR',
 };
 const MODE_ACCENT: Record<string, string> = {
-  x01: 'red', cricket: 'green', aroundTheClock: 'blue', firstTo: 'amber', practice: 'purple',
+  x01: 'red', cricket: 'green', aroundTheClock: 'blue', firstTo: 'amber', inARow: 'purple',
 };
-const GAME_MODE_KEYS = ['x01', 'cricket', 'aroundTheClock', 'firstTo', 'practice'];
+const GAME_MODE_KEYS = ['x01', 'cricket', 'aroundTheClock', 'firstTo', 'inARow'];
 
 function fmtDate(ts: number): string {
   return new Date(ts).toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: '2-digit' });

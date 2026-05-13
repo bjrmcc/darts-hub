@@ -1,4 +1,4 @@
-export type GameMode = 'x01' | 'cricket' | 'aroundTheClock' | 'firstTo' | 'practice';
+export type GameMode = 'x01' | 'cricket' | 'aroundTheClock' | 'firstTo' | 'inARow';
 
 export type X01Variant = 301 | 501;
 

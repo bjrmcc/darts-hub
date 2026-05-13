@@ -7865,3 +7865,97 @@ button.secondary:hover {
     font-size: 0.9rem;
   }
 }
+
+/* ── In a Row chalkboard ──────────────────────────────── */
+
+.chalk-iar-header {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.15rem;
+  padding: 0.5rem 0;
+}
+
+.chalk-iar-title {
+  font-size: 0.95rem;
+  font-weight: 700;
+  color: #e8e0cc;
+  letter-spacing: 0.02em;
+}
+
+.chalk-iar-sub {
+  font-size: 0.75rem;
+  color: #666;
+}
+
+.chalk-iar-players {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+  padding: 0.4rem 0;
+}
+
+.chalk-iar-player {
+  padding: 0.55rem 0.6rem;
+  border-radius: 6px;
+  background: transparent;
+  transition: background 0.15s;
+}
+
+.chalk-iar-active {
+  background: rgba(255, 255, 255, 0.04);
+}
+
+.chalk-iar-done {
+  opacity: 0.45;
+}
+
+.chalk-iar-name-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 0.35rem;
+}
+
+.chalk-iar-status {
+  font-size: 0.75rem;
+  color: #555;
+  font-variant-numeric: tabular-nums;
+  letter-spacing: 0.02em;
+}
+
+.chalk-iar-status--ext {
+  color: #d97706;
+  font-weight: 700;
+}
+
+.chalk-iar-scores {
+  display: flex;
+  gap: 1.4rem;
+}
+
+.chalk-iar-score-item {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 0.05rem;
+}
+
+.chalk-iar-score-val {
+  font-size: 1.35rem;
+  font-weight: 700;
+  color: #e8e0cc;
+  font-variant-numeric: tabular-nums;
+  line-height: 1;
+}
+
+.chalk-iar-streak {
+  color: #d97706;
+}
+
+.chalk-iar-score-label {
+  font-size: 0.62rem;
+  color: #555;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+}

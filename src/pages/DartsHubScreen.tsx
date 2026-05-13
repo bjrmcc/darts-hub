@@ -364,7 +364,7 @@ export default function DartsHubScreen() {
               </div>
               <div className="hub-play-preview-item">
                 <BullseyeIcon className="hub-play-icon" />
-                <span className="hub-play-icon-label">Free Throw</span>
+                <span className="hub-play-icon-label">In a Row</span>
               </div>
             </div>
           </div>
