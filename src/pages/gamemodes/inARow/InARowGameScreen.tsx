@@ -14,6 +14,7 @@ interface IARSnap {
   currentPlayerIndex: number;
   goHits: number[];
   hits: number[];
+  bestGo: number[];
   gosDone: number[];
   playerDone: boolean[];
   lastGoResult: { name: string; goHits: number } | null;
@@ -42,6 +43,7 @@ export default function InARowGameScreen() {
   const [currentPlayerIndex, setCurrentPlayerIndex] = useState(0);
   const [goHits, setGoHits] = useState<number[]>(players.map(() => 0));
   const [hits, setHits] = useState<number[]>(players.map(() => 0));
+  const [bestGo, setBestGo] = useState<number[]>(players.map(() => 0));
   const [gosDone, setGosDone] = useState<number[]>(players.map(() => 0));
   const [playerDone, setPlayerDone] = useState<boolean[]>(players.map(() => false));
   const [lastGoResult, setLastGoResult] = useState<{ name: string; goHits: number } | null>(null);
@@ -89,6 +91,7 @@ export default function InARowGameScreen() {
       currentPlayerIndex,
       goHits: [...goHits],
       hits: [...hits],
+      bestGo: [...bestGo],
       gosDone: [...gosDone],
       playerDone: [...playerDone],
       lastGoResult,
@@ -104,6 +107,7 @@ export default function InARowGameScreen() {
     setCurrentPlayerIndex(prev.currentPlayerIndex);
     setGoHits(prev.goHits);
     setHits(prev.hits);
+    setBestGo(prev.bestGo);
     setGosDone(prev.gosDone);
     setPlayerDone(prev.playerDone);
     setLastGoResult(prev.lastGoResult);
@@ -138,6 +142,10 @@ export default function InARowGameScreen() {
     const newGoHits = [...goHits];
     const thisGoHits = newGoHits[playerIdx];
     newGoHits[playerIdx] = 0;
+
+    const newBestGo = [...bestGo];
+    if (thisGoHits > newBestGo[playerIdx]) newBestGo[playerIdx] = thisGoHits;
+    setBestGo(newBestGo);
 
     const newGosDone = [...gosDone];
     newGosDone[playerIdx]++;
@@ -298,6 +306,10 @@ export default function InARowGameScreen() {
                     <div className="chalk-iar-score-item">
                       <span className="chalk-iar-score-val">{hits[i]}</span>
                       <span className="chalk-iar-score-label">total</span>
+                    </div>
+                    <div className="chalk-iar-score-item">
+                      <span className="chalk-iar-score-val">{bestGo[i]}</span>
+                      <span className="chalk-iar-score-label">best</span>
                     </div>
                     {isActive && goHits[i] > 0 && (
                       <div className="chalk-iar-score-item">
