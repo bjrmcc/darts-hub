@@ -112,9 +112,7 @@ export default function FirstToSetupScreen() {
             </SortableContext>
           </DndContext>
 
-          {availableToAdd.length > 0 && (
-            <PlayerPicker profiles={availableToAdd} onSelect={addPlayer} requireAuth={!practice} />
-          )}
+          <PlayerPicker profiles={availableToAdd} onSelect={addPlayer} requireAuth={!practice} />
           {players.length < 2 && <p className="hint">Add at least one more player to start.</p>}
         </div>
       )}
