@@ -161,7 +161,7 @@ export default function InARowGameScreen() {
     setPlayerDone(newPlayerDone);
 
     if (newPlayerDone.every((d) => d)) {
-      finishGame(hits, newPlayerDone);
+      finishGame(hits);
       return;
     }
 
@@ -175,7 +175,7 @@ export default function InARowGameScreen() {
     setCurrentPlayerIndex(nextIdx);
   }
 
-  function finishGame(finalHits: number[], _done: boolean[]) {
+  function finishGame(finalHits: number[]) {
     const maxHits = Math.max(...finalHits);
     const winnerIdx = finalHits.indexOf(maxHits);
     const winnerId = players[winnerIdx]?.id ?? '';
