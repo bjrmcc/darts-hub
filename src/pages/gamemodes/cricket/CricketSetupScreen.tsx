@@ -143,7 +143,6 @@ export default function CricketSetupScreen() {
   }
 
   function canAddToTeam(team: 1 | 2) {
-    if (available.length === 0) return false;
     if (pendingTeam === null) return true;
     return pendingTeam === team;
   }
