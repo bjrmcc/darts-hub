@@ -887,12 +887,7 @@ li {
 }
 
 .home-tile--hero .home-tile-icon-wrap {
-  min-height: unset;
-}
-
-.home-tile--hero .home-tile-icon {
-  width: 46px;
-  height: 46px;
+  display: none;
 }
 
 .home-tile--hero .home-tile-text {
