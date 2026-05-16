@@ -875,7 +875,7 @@ li {
 /* ── full-width hero tile (X01 in Play) ── */
 .home-tile--hero {
   grid-column: 1 / -1;
-  grid-template-columns: 86px 1fr;
+  grid-template-columns: 86px 1fr auto;
   border-color: var(--ac-border, #1f1f1f);
   background: var(--ac-bg, #141414);
   min-height: 100px;
@@ -905,9 +905,6 @@ li {
   color: #666;
 }
 
-.home-tile--hero .home-tile-arrow {
-  display: none;
-}
 
 .home-tile--hero:hover {
   background: color-mix(in srgb, var(--ac-bg, #181818) 80%, #181818);
