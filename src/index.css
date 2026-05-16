@@ -7978,3 +7978,117 @@ button.secondary:hover {
   text-transform: uppercase;
   letter-spacing: 0.06em;
 }
+
+/* ============================================================
+   LANDSCAPE MOBILE  (phones rotated — limited height)
+   ============================================================ */
+
+@media (orientation: landscape) and (max-height: 500px) {
+
+  /* ── Game screens: restore side-by-side layout ── */
+  .cricket-screen {
+    height: calc(100dvh - var(--nav-h));
+    min-height: unset;
+    overflow: hidden;
+  }
+
+  .cricket-main {
+    flex-direction: row;
+  }
+
+  .cricket-board-side {
+    flex: 1;
+    height: auto;
+  }
+
+  .chalkboard {
+    width: 42%;
+    border-left: 3px solid #2a2a2a;
+    border-top: none;
+    overflow-y: auto;
+  }
+
+  /* Tighter board info strips */
+  .board-info-top {
+    padding: 0.15rem 0.5rem;
+  }
+
+  .board-info-bottom {
+    padding: 0.25rem 0.5rem;
+    gap: 0.35rem;
+  }
+
+  .miss-btn.full-miss-btn {
+    min-height: 40px;
+    padding: 0.4rem 0.5rem;
+    font-size: 0.95rem;
+  }
+
+  .game-back-btn,
+  .undo-btn {
+    min-height: 36px;
+    padding: 0.3rem 0.5rem;
+    font-size: 0.75rem;
+  }
+
+  .win-exit-btn {
+    min-height: 40px;
+    padding: 0.4rem 0.75rem;
+    font-size: 0.85rem;
+  }
+
+  /* ── Setup screens: tighter so they scroll less ── */
+  .page {
+    padding-top: calc(var(--nav-h) + 0.5rem);
+    padding-bottom: 1rem;
+    padding-left: 1rem;
+    padding-right: 1rem;
+    gap: 0.5rem;
+  }
+
+  .page h2 { font-size: 1.1rem; margin: 0; }
+
+  .setup-section { padding: 0.4rem 0.75rem; }
+
+  .practice-toggle { padding: 0.4rem 0.75rem; }
+
+  .option-group button {
+    min-height: 40px;
+    padding: 0.35rem 0.75rem;
+  }
+
+  .toggle-btn {
+    min-height: 36px;
+    padding: 0.3rem 1rem;
+  }
+
+  /* ── Hub: 2-column in landscape ── */
+  .hub-page {
+    grid-template-columns: 1fr 1fr;
+    grid-template-rows: auto auto auto;
+  }
+
+  .hub-card--quick    { grid-column: 1; grid-row: 1; }
+  .hub-card--play     { grid-column: 2; grid-row: 1; }
+  .hub-card--news     { grid-column: 1; grid-row: 2; height: 180px; }
+  .hub-card--stats    { grid-column: 2; grid-row: 2; }
+  .hub-card--settings { grid-column: 1 / -1; grid-row: 3; }
+
+  /* ── Profiles overlay: centre modal instead of bottom sheet ── */
+  .profiles-overlay-backdrop {
+    align-items: center;
+    padding: 1rem;
+  }
+
+  .profiles-overlay {
+    border-radius: 14px;
+    max-height: 85dvh;
+    padding-bottom: 0;
+  }
+
+  /* ── Info modal: scrollable so it fits ── */
+  .info-modal {
+    max-height: 88dvh;
+    overflow-y: auto;
+  }
+}
