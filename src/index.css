@@ -875,12 +875,7 @@ li {
 /* ── full-width hero tile (X01 in Play) ── */
 .home-tile--hero {
   grid-column: 1 / -1;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  gap: 0.35rem;
-  padding: 1.25rem 1rem;
+  grid-template-columns: 86px 1fr;
   border-color: var(--ac-border, #1f1f1f);
   background: var(--ac-bg, #141414);
   min-height: 100px;
@@ -898,7 +893,6 @@ li {
 .home-tile--hero .home-tile-text {
   align-items: center;
   text-align: center;
-  padding: 0;
 }
 
 .home-tile--hero .home-tile-name {
