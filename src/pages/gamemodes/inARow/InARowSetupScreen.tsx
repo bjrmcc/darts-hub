@@ -35,7 +35,7 @@ export default function InARowSetupScreen() {
   const { profiles, activeProfileId } = useProfilesStore();
   const activeProfile = profiles.find((p) => p.id === activeProfileId);
 
-  const { open: infoOpen, close: closeInfo, dismiss: dismissInfo, reopen: openInfo } = useInfoModal('inARow', state?._from === 'hub');
+  const { open: infoOpen, manual: infoManual, close: closeInfo, dismiss: dismissInfo, reopen: openInfo } = useInfoModal('inARow', state?._from === 'hub');
 
   const [mode, setMode] = useState<Mode>(state?.mode ?? 'players');
   const [players, setPlayers] = useState<Profile[]>(state?.players ?? (activeProfile ? [activeProfile] : []));
@@ -61,7 +61,7 @@ export default function InARowSetupScreen() {
 
   return (
     <div className="page">
-      {infoOpen && <InfoModal content={GAME_INFO.inARow} onClose={closeInfo} onDismiss={dismissInfo} />}
+      {infoOpen && <InfoModal content={GAME_INFO.inARow} onClose={closeInfo} onDismiss={dismissInfo} showDismiss={!infoManual} />}
       <div className="page-title-row">
         <h2>In a Row</h2>
         <button className="info-btn" onClick={openInfo} aria-label="How to play">ⓘ</button>

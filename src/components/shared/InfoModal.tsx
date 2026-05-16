@@ -4,9 +4,10 @@ interface Props {
   content: GameInfoContent;
   onClose: () => void;
   onDismiss: () => void;
+  showDismiss?: boolean;
 }
 
-export default function InfoModal({ content, onClose, onDismiss }: Props) {
+export default function InfoModal({ content, onClose, onDismiss, showDismiss = true }: Props) {
   return (
     <div className="info-overlay" onClick={onClose}>
       <div
@@ -33,11 +34,13 @@ export default function InfoModal({ content, onClose, onDismiss }: Props) {
           ))}
         </div>
 
-        <div className="info-modal-footer">
-          <button className="info-modal-dismiss-btn" onClick={onDismiss}>
-            Don't show this again
-          </button>
-        </div>
+        {showDismiss && (
+          <div className="info-modal-footer">
+            <button className="info-modal-dismiss-btn" onClick={onDismiss}>
+              Don't show this again
+            </button>
+          </div>
+        )}
       </div>
     </div>
   );

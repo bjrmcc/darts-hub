@@ -36,7 +36,7 @@ export default function ATCSetupScreen() {
   const activeProfile = profiles.find((p) => p.id === activeProfileId);
 
   const defaultPlayers = activeProfile ? [activeProfile] : [];
-  const { open: infoOpen, close: closeInfo, dismiss: dismissInfo, reopen: openInfo } = useInfoModal('atc', state?._from === 'hub');
+  const { open: infoOpen, manual: infoManual, close: closeInfo, dismiss: dismissInfo, reopen: openInfo } = useInfoModal('atc', state?._from === 'hub');
 
   const [mode, setMode] = useState<Mode>(state?.mode ?? 'players');
   const [difficulty, setDifficulty] = useState(state?.difficulty ?? 15);
@@ -73,7 +73,7 @@ export default function ATCSetupScreen() {
 
   return (
     <div className="page">
-      {infoOpen && <InfoModal content={GAME_INFO.atc} onClose={closeInfo} onDismiss={dismissInfo} />}
+      {infoOpen && <InfoModal content={GAME_INFO.atc} onClose={closeInfo} onDismiss={dismissInfo} showDismiss={!infoManual} />}
       <div className="page-title-row">
         <h2>Around the Clock</h2>
         <button className="info-btn" onClick={openInfo} aria-label="How to play">ⓘ</button>
