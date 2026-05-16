@@ -36,7 +36,7 @@ export default function FirstToSetupScreen() {
   const { profiles, activeProfileId } = useProfilesStore();
   const activeProfile = profiles.find((p) => p.id === activeProfileId);
 
-  const { open: infoOpen, close: closeInfo, reopen: openInfo } = useInfoModal('firstTo');
+  const { open: infoOpen, close: closeInfo, dismiss: dismissInfo, reopen: openInfo } = useInfoModal('firstTo', state?._from === 'hub');
 
   const [mode, setMode] = useState<Mode>(state?.mode ?? 'players');
   const [players, setPlayers] = useState<Profile[]>(state?.players ?? (activeProfile ? [activeProfile] : []));
@@ -72,7 +72,7 @@ export default function FirstToSetupScreen() {
 
   return (
     <div className="page">
-      {infoOpen && <InfoModal content={GAME_INFO.firstTo} onClose={closeInfo} />}
+      {infoOpen && <InfoModal content={GAME_INFO.firstTo} onClose={closeInfo} onDismiss={dismissInfo} />}
       <div className="page-title-row">
         <h2>First To</h2>
         <button className="info-btn" onClick={openInfo} aria-label="How to play">ⓘ</button>

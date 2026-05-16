@@ -77,7 +77,7 @@ export default function CricketSetupScreen() {
   const { profiles, activeProfileId } = useProfilesStore();
   const activeProfile = profiles.find((p) => p.id === activeProfileId);
 
-  const { open: infoOpen, close: closeInfo, reopen: openInfo } = useInfoModal('cricket');
+  const { open: infoOpen, close: closeInfo, dismiss: dismissInfo, reopen: openInfo } = useInfoModal('cricket', state?._from === 'hub');
 
   const [mode, setMode] = useState<Mode>(state?.mode ?? 'players');
   const [difficulty, setDifficulty] = useState(state?.difficulty ?? 15);
@@ -154,7 +154,7 @@ export default function CricketSetupScreen() {
 
   return (
     <div className="page">
-      {infoOpen && <InfoModal content={GAME_INFO.cricket} onClose={closeInfo} />}
+      {infoOpen && <InfoModal content={GAME_INFO.cricket} onClose={closeInfo} onDismiss={dismissInfo} />}
       <div className="page-title-row">
         <h2>Cricket</h2>
         <button className="info-btn" onClick={openInfo} aria-label="How to play">ⓘ</button>

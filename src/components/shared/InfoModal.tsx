@@ -3,9 +3,10 @@ import type { GameInfoContent } from '../../config/gameInfoContent';
 interface Props {
   content: GameInfoContent;
   onClose: () => void;
+  onDismiss: () => void;
 }
 
-export default function InfoModal({ content, onClose }: Props) {
+export default function InfoModal({ content, onClose, onDismiss }: Props) {
   return (
     <div className="info-overlay" onClick={onClose}>
       <div
@@ -32,7 +33,11 @@ export default function InfoModal({ content, onClose }: Props) {
           ))}
         </div>
 
-        <p className="info-modal-dismiss">Tap anywhere outside to close</p>
+        <div className="info-modal-footer">
+          <button className="info-modal-dismiss-btn" onClick={onDismiss}>
+            Don't show this again
+          </button>
+        </div>
       </div>
     </div>
   );

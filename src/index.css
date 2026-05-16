@@ -1409,13 +1409,26 @@ li {
   line-height: 1.45;
 }
 
-.info-modal-dismiss {
-  font-size: 0.6rem;
-  color: #2e2e2e;
-  text-align: center;
-  padding: 0.6rem 0 0.75rem;
-  margin: 0;
+.info-modal-footer {
+  display: flex;
+  justify-content: center;
+  padding: 0.5rem 1rem 0.75rem;
   flex-shrink: 0;
+  border-top: 1px solid #1e1e1e;
+}
+
+.info-modal-dismiss-btn {
+  background: none;
+  border: none;
+  color: #3a3a3a;
+  font-size: 0.7rem;
+  cursor: pointer;
+  padding: 0.3rem 0.6rem;
+  transition: color 0.12s;
+}
+
+.info-modal-dismiss-btn:hover {
+  color: #666;
 }
 
 /* ── Info button (sits next to setup screen title) ───── */

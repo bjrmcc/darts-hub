@@ -36,7 +36,7 @@ export default function X01SetupScreen() {
 
   const activeProfile = profiles.find((p) => p.id === activeProfileId);
 
-  const { open: infoOpen, close: closeInfo, reopen: openInfo } = useInfoModal('x01');
+  const { open: infoOpen, close: closeInfo, dismiss: dismissInfo, reopen: openInfo } = useInfoModal('x01', state?._from === 'hub');
 
   const [variant, setVariant] = useState<X01Variant>(state?.variant ?? 501);
   const [mode, setMode] = useState<Mode>(state?.mode ?? 'players');
@@ -76,7 +76,7 @@ export default function X01SetupScreen() {
 
   return (
     <div className="page">
-      {infoOpen && <InfoModal content={GAME_INFO.x01} onClose={closeInfo} />}
+      {infoOpen && <InfoModal content={GAME_INFO.x01} onClose={closeInfo} onDismiss={dismissInfo} />}
       <div className="page-title-row">
         <h2>X01</h2>
         <button className="info-btn" onClick={openInfo} aria-label="How to play">ⓘ</button>

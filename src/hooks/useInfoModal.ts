@@ -1,15 +1,14 @@
 import { useState } from 'react';
 
-/**
- * Manages the info modal open state for a given game mode.
- * Auto-opens on first visit (keyed to localStorage) and can always
- * be re-opened via the ⓘ button.
- */
-export function useInfoModal(key: string) {
+export function useInfoModal(key: string, skip = false) {
   const storageKey = `darts-hub-info-${key}`;
-  const [open, setOpen] = useState(() => !localStorage.getItem(storageKey));
+  const [open, setOpen] = useState(() => !skip && !localStorage.getItem(storageKey));
 
   function close() {
+    setOpen(false);
+  }
+
+  function dismiss() {
     localStorage.setItem(storageKey, '1');
     setOpen(false);
   }
@@ -18,5 +17,5 @@ export function useInfoModal(key: string) {
     setOpen(true);
   }
 
-  return { open, close, reopen };
+  return { open, close, dismiss, reopen };
 }
