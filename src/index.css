@@ -890,8 +890,9 @@ li {
 }
 
 .home-tile--hero .home-tile-name {
-  font-size: 1.05rem;
+  font-size: 1.4rem;
   color: var(--ac, #e2e2e2);
+  letter-spacing: -0.01em;
 }
 
 .home-tile--hero .home-tile-sub {
