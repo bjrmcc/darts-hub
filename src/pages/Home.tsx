@@ -247,8 +247,9 @@ const STATS_MODE_TILES: StatsTile[] = [
 export default function Home() {
   const goto = useGoto();
   const { pathname } = useLocation();
-  const { activeProfileId } = useProfilesStore();
+  const { activeProfileId, profiles, setActiveProfile } = useProfilesStore();
   const history = useStatisticsStore(s => s.history);
+  const rossProfile = profiles.find(p => p.name === 'Ross');
 
   const statsLoaded = useStatisticsStore(s => s.loaded);
   const isStats = pathname === ROUTES.STATS_HOME;
@@ -338,6 +339,21 @@ export default function Home() {
         )}
 
       </div>
+
+      {/* DEV SHORTCUT — remove before launch */}
+      {rossProfile && activeProfileId !== rossProfile.id && (
+        <button
+          onClick={() => setActiveProfile(rossProfile.id)}
+          style={{
+            position: 'fixed', bottom: '1rem', right: '1rem', zIndex: 9999,
+            background: '#7c3aed', color: '#fff', border: 'none', borderRadius: '8px',
+            padding: '0.4rem 0.75rem', fontSize: '0.72rem', fontWeight: 600,
+            opacity: 0.85, cursor: 'pointer',
+          }}
+        >
+          DEV: Login as Ross
+        </button>
+      )}
     </div>
   );
 }
