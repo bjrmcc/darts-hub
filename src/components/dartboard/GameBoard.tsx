@@ -68,7 +68,7 @@ export default function GameBoard({ onHit }: Props) {
         const centerAngle = -90 + i * 18;
         const start = centerAngle - 9;
         const end   = centerAngle + 9;
-        const even  = i % 2 === 0;
+        const even  = i % 2 !== 0;
 
         const zones = [
           {
