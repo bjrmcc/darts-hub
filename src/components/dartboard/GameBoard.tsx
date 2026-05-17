@@ -74,7 +74,7 @@ export default function GameBoard({ onHit }: Props) {
           {
             key: `D${num}`,
             r1: DOUBLE_IN, r2: OUTER_R,
-            baseFill: even ? '#aa0000' : '#006400',
+            baseFill: even ? '#006400' : '#aa0000',
             score: num * 2, multiplier: 2 as const, label: `D${num}`,
           },
           {
@@ -86,7 +86,7 @@ export default function GameBoard({ onHit }: Props) {
           {
             key: `T${num}`,
             r1: TRIPLE_IN, r2: TRIPLE_OUT,
-            baseFill: even ? '#aa0000' : '#006400',
+            baseFill: even ? '#006400' : '#aa0000',
             score: num * 3, multiplier: 3 as const, label: `T${num}`,
           },
           {
