@@ -257,23 +257,21 @@ export default function ProfileSelectionScreen() {
       )}
 
       {/* DEV SHORTCUT — remove before launch */}
-      {profiles.find(p => p.name === 'Ross') && (
-        <button
-          onClick={() => {
-            const ross = profiles.find(p => p.name === 'Ross')!;
-            setActiveProfile(ross.id);
-            navigate('/');
-          }}
-          style={{
-            position: 'fixed', bottom: '1rem', right: '1rem', zIndex: 9999,
-            background: '#7c3aed', color: '#fff', border: 'none', borderRadius: '8px',
-            padding: '0.4rem 0.75rem', fontSize: '0.72rem', fontWeight: 600,
-            opacity: 0.85, cursor: 'pointer',
-          }}
-        >
-          DEV: Login as Ross
-        </button>
-      )}
+      <button
+        onClick={() => {
+          const ross = profiles.find(p => p.name === 'Ross');
+          if (ross) { setActiveProfile(ross.id); navigate('/'); }
+          else alert('Ross profile not found — profiles may still be loading.');
+        }}
+        style={{
+          position: 'fixed', bottom: '1rem', right: '1rem', zIndex: 9999,
+          background: '#7c3aed', color: '#fff', border: 'none', borderRadius: '8px',
+          padding: '0.4rem 0.75rem', fontSize: '0.72rem', fontWeight: 600,
+          opacity: 0.85, cursor: 'pointer',
+        }}
+      >
+        DEV: Login as Ross
+      </button>
     </div>
   );
 }
