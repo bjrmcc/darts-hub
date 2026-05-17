@@ -408,7 +408,6 @@ export default function AdminScreen() {
             {history.length} game{history.length !== 1 ? 's' : ''}
           </span>
         </div>
-        <button className="adm-back-btn" onClick={() => goto(ROUTES.HOME)}>← Hub</button>
       </div>
 
       {/* Tabs */}
